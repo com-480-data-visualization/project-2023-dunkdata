@@ -21,7 +21,7 @@ Please, fill the following sections about your project.
 
 We will be using data primarily from 2 sources: [NBA](https://www.nba.com/) for official NBA related data/statistics, and [FiveThirtyEight](https://data.fivethirtyeight.com/) for additional advanced NBA stats.
 
-##### FiveThirtyEight data
+#### _FiveThirtyEight data_
 
 The data from FiveThirtyEight is directly downloaded from their website. In particular, we use two datasets: [nba-raptor](https://github.com/fivethirtyeight/data/tree/master/nba-raptor) containing FiveThirtyEight's RAPTOR statistics for each player (historic and current), and [nba-forecasts](https://github.com/fivethirtyeight/data/tree/master/nba-forecasts) containing game by game elo ratings and forecasts for teams since 1946. All  datasets are formatted as CSVs.
 
@@ -35,7 +35,7 @@ _After filtering in this way, the dataset is quite clean already and ready for v
 
 _TODO_
 
-##### NBA data
+#### _NBA data_
 
 We use the Kaggle dataset [NBA Database](https://www.kaggle.com/datasets/wyattowalsh/basketball) with numerous tables to source most of our NBA data. However, some tables in this dataset are incomplete (such as the `common_player_info` table), and thus to fill in the gaps we scrape the missing parts of the table using the [NBA API](https://github.com/swar/nba_api) (where the Kaggle dataset is also originally sourced from).
 
