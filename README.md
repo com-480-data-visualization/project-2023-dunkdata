@@ -19,9 +19,29 @@ Please, fill the following sections about your project.
 
 ### Dataset
 
+We will be using data primarily from 2 sources: [NBA](https://www.nba.com/) for official NBA related data/statistics, and [FiveThirtyEight](https://data.fivethirtyeight.com/) for additional advanced NBA stats.
+
+##### FiveThirtyEight data
+
+The data from FiveThirtyEight is directly downloaded from their website. In particular, we use two datasets: [nba-raptor](https://github.com/fivethirtyeight/data/tree/master/nba-raptor) containing FiveThirtyEight's RAPTOR statistics for each player (historic and current), and [nba-forecasts](https://github.com/fivethirtyeight/data/tree/master/nba-forecasts) containing game by game elo ratings and forecasts for teams since 1946. All  datasets are formatted as CSVs.
+
+**nba-raptor**
+
+The full calculation of the RAPTOR statistic relies on full player tracking data, which has only been captured since the 2013-14 NBA season. Despite this, the nba-raptor dataset contains historical data back until 1977, by estimating RAPTOR using the highest level of detail available in each era. For consistency, we only consider data from the 2013-14 season onward.
+
+_After filtering in this way, the dataset is quite clean already and ready for visualisation._
+
+**nba-forecasts**
+
+_TODO_
+
+##### NBA data
+
+We use the Kaggle dataset [NBA Database](https://www.kaggle.com/datasets/wyattowalsh/basketball) with numerous tables to source most of our NBA data. However, some tables in this dataset are incomplete (such as the `common_player_info` table), and thus to fill in the gaps we scrape the missing parts of the table using the [NBA API](https://github.com/swar/nba_api) (where the Kaggle dataset is also originally sourced from).
+
+
 > Find a dataset (or multiple) that you will explore. Assess the quality of the data it contains and how much preprocessing / data-cleaning it will require before tackling visualization. We recommend using a standard dataset as this course is not about scraping nor data processing.
->
-> Hint: some good pointers for finding quality publicly available datasets ([Google dataset search](https://datasetsearch.research.google.com/), [Kaggle](https://www.kaggle.com/datasets), [OpenSwissData](https://opendata.swiss/en/), [SNAP](https://snap.stanford.edu/data/) and [FiveThirtyEight](https://data.fivethirtyeight.com/)), you could use also the DataSets proposed by the ENAC (see the Announcements section on Zulip).
+
 
 ### Problematic
 
