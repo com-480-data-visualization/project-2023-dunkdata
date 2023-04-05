@@ -49,6 +49,8 @@ We use the Kaggle dataset [NBA Database](https://www.kaggle.com/datasets/wyattow
 > - What am I trying to show with my visualization?
 > - Think of an overview for the project, your motivation, and the target audience.
 
+We are exploring many different directions for our visualisation. Some of our visualisation ideas are to explore where the players for every team come from, making bubble plots using four key factors for each N-man lineup with cross talk, 
+
 ### Exploratory Data Analysis
 
 > Pre-processing of the data set you chose
