@@ -1,4 +1,5 @@
 *.csv
 *.sqlite
+.DS_Store
 
 datasets/
