@@ -37,7 +37,6 @@ This dataset is quite clean already for the purposes we need. The columns we are
 
 We use the Kaggle dataset [NBA Database](https://www.kaggle.com/datasets/wyattowalsh/basketball) with numerous tables to source most of our NBA data. However, some tables in this dataset, provided as is, are incomplete (such as the `common_player_info` table). Thus to fill in the gaps of this table, we scraped the missing players using the [NBA API](https://github.com/swar/nba_api) (where the Kaggle dataset is also originally sourced from).
 
-> Find a dataset (or multiple) that you will explore. Assess the quality of the data it contains and how much preprocessing / data-cleaning it will require before tackling visualization. We recommend using a standard dataset as this course is not about scraping nor data processing.
 
 
 ### Problematic
@@ -79,10 +78,6 @@ The data which comes from FiveThirtyEight has of course been explored already in
 
 Other than FiveThirtyEight, there are been many other NBA visualisation projects which people have done. We took inspiration from some of these for the types of visualisations we could show, but mainly we decided our visualisations based on things we'd be interested in as NBA fans.
 
-> - What others have already done with the data?
-> - Why is your approach original?
-> - What source of inspiration do you take? Visualizations that you found on other websites or magazines (might be unrelated to your data).
-> - In case you are using a dataset that you have already explored in another context (ML or ADA course, semester project...), you are required to share the report of that work to outline the differences with the submission for this class.
 
 ## Milestone 2 (7th May, 5pm)
 
