@@ -78,7 +78,7 @@ _**Please note:** we have split our EDA across 3 notebooks, one looking at each 
 - Contains data on 73273 games since 1946 in the NBA (including playoffs)
 
 - Example plot showing unlikely games won/lost over a season based on winning/losing a game with elo probability > 0.65
-![unlikely wins](assets/eda_plots/2022_unlikely_wins.png)
+![unlikely wins](assets/eda_plots/2022_unlikely_wins_losses.png)
 
 ### Related work
 
