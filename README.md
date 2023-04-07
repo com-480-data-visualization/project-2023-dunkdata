@@ -27,9 +27,7 @@ The data from FiveThirtyEight is directly downloaded from their website. In part
 
 **nba-raptor**
 
-The full calculation of the RAPTOR statistic relies on full player tracking data, which has only been captured since the 2013-14 NBA season. Despite this, the nba-raptor dataset contains historical data back until 1977, by estimating RAPTOR using the highest level of detail available in each era. For consistency, we only consider data from the 2013-14 season onward.
-
-_After filtering in this way, the dataset is quite clean already and ready for visualisation._
+The full calculation of the RAPTOR statistic relies on full player tracking data, which has only been captured since the 2013-14 NBA season. Despite this, the nba-raptor dataset contains historical data back until 1977, by estimating RAPTOR using the highest level of detail available in each era. For consistency, we only consider data from the 2013-14 season onward. After filtering in this way, the dataset is already quite clean (requires minimal preprocessing).
 
 **nba-forecasts**
 
