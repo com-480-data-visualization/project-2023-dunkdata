@@ -27,7 +27,7 @@ The data from FiveThirtyEight is directly downloaded from their website. In part
 
 **nba-raptor**
 
-The full calculation of the RAPTOR statistic relies on full player tracking data, which has only been captured since the 2013-14 NBA season. Despite this, the nba-raptor dataset contains historical data back until 1977, by estimating RAPTOR using the highest level of detail available in each era. For consistency, we only consider data from the 2013-14 season onward. After filtering in this way, the dataset is already quite clean (requires minimal preprocessing).
+The full calculation of the RAPTOR statistic relies on full player tracking data, which has only been captured since the 2013-14 NBA season. Despite this, the nba-raptor dataset contains historical data back until 1977, by estimating RAPTOR using the highest level of detail available in each era. For consistency, we only consider data from the 2013-14 season onward for most accurate stats. In addition, for each player, we would like to get their career history (all the teams they have played for, in chronological order), so we did some additional preprocessing to obtain the correct order of teams for each player. Details can be found in `utils.py`.
 
 **nba-forecasts**
 
@@ -35,8 +35,7 @@ This dataset is quite clean already for the purposes we need. The columns we are
 
 #### _NBA data_
 
-We use the Kaggle dataset [NBA Database](https://www.kaggle.com/datasets/wyattowalsh/basketball) with numerous tables to source most of our NBA data. However, some tables in this dataset are incomplete (such as the `common_player_info` table), and thus to fill in the gaps we scrape the missing parts of the table using the [NBA API](https://github.com/swar/nba_api) (where the Kaggle dataset is also originally sourced from).
-
+We use the Kaggle dataset [NBA Database](https://www.kaggle.com/datasets/wyattowalsh/basketball) with numerous tables to source most of our NBA data. However, some tables in this dataset, provided as is, are incomplete (such as the `common_player_info` table). Thus to fill in the gaps of this table, we scraped the missing players using the [NBA API](https://github.com/swar/nba_api) (where the Kaggle dataset is also originally sourced from).
 
 > Find a dataset (or multiple) that you will explore. Assess the quality of the data it contains and how much preprocessing / data-cleaning it will require before tackling visualization. We recommend using a standard dataset as this course is not about scraping nor data processing.
 
@@ -50,6 +49,16 @@ We use the Kaggle dataset [NBA Database](https://www.kaggle.com/datasets/wyattow
 We are exploring many different directions for our visualisation. Some of our visualisation ideas are to explore where the players for every team come from, making bubble plots using four key factors for each N-man lineup with cross talk,
 
 ### Exploratory Data Analysis
+
+#### Descriptive statistics of the NBA dataset
+
+* NBA players are on average about 198cm tall and 95kg heavy
+
+* Throughout their career, each player on average plays for 4 seasons and 2 teams. The longest career is 22 seasons long, and the shortest is 1 season long.
+
+* Unsurprisingly, most players are from the US, with 3,000+ players from the US. The next most common countries are Canada and France. That said, there are also players from 70+ other countries, making the NBA a diverse league.
+
+* Team sizes do not seem to vary much across the seasons, suggesting that the transfers of players between teams stay fairly consistent.
 
 > Pre-processing of the data set you chose
 > - Show some basic statistics and get insights about the data
