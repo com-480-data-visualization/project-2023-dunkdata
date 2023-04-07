@@ -58,6 +58,9 @@ We are exploring many different directions for our visualisation. Some of our vi
 
 ### Related work
 
+The data which comes from FiveThirtyEight has of course been explored already in their articles/tools about their [RAPTOR advanced stat](https://projects.fivethirtyeight.com/nba-player-ratings/) and for [forecasting the NBA season](https://projects.fivethirtyeight.com/2023-nba-predictions/). Our take on this data however is different to what they look at. For example, with the elo data, we are more so interested in using this historically to visualise things like the biggest 'upsets' (i.e. most unlikely wins) in a season, which is not something FiveThirtyEight does. For the RAPTOR data, rather than looking at a player's stats across an entire season, we're interested in using the RAPTOR stat as a metric to measure player impact, to ultimately visualise player performance under different conditions (e.g. regular season vs playoffs, when moving from one team to another in the season etc). 
+
+Other than FiveThirtyEight, there are been many other NBA visualisation projects which people have done. We took inspiration from some of these for the types of visualisations we could show, but mainly we decided our visualisations based on things we'd be interested in as NBA fans.
 
 > - What others have already done with the data?
 > - Why is your approach original?
