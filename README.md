@@ -77,6 +77,8 @@ _**Please note:** we have split our EDA across 3 notebooks, one looking at each 
 
 - Contains data on 73273 games since 1946 in the NBA (including playoffs)
 
+- The biggest upset in NBA history (based on elo probability) occurred on 1993-04-24 where DAL def HOU	128 - 123
+
 - Example plot showing unlikely games won/lost over a season based on winning/losing a game with elo probability > 0.65
 ![unlikely wins](assets/eda_plots/2022_unlikely_wins_losses.png)
 
