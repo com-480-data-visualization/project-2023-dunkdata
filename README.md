@@ -65,8 +65,13 @@ We are exploring many different directions for our visualisation. Our main visua
 
 * Team sizes do not seem to vary much across the seasons, suggesting that the transfers of players between teams stay fairly consistent.
 
-> Pre-processing of the data set you chose
-> - Show some basic statistics and get insights about the data
+
+#### RAPTOR Score Analysis
+
+* The league began tracking certain advanced stats after the 2013-14 season. Therefore any visualisations involving these advanced stats will include only this data.
+
+* There are hardly any missing values in the RAPTOR datasets. This is because a player either plays in a season, in which case all the stats for that particular season are calculated, or they don't play, in which case there is no entry for that player for that year.
+
 
 ### Related work
 
