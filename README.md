@@ -42,11 +42,16 @@ We use the Kaggle dataset [NBA Database](https://www.kaggle.com/datasets/wyattow
 
 ### Problematic
 
-> Frame the general topic of your visualization and the main axis that you want to develop.
-> - What am I trying to show with my visualization?
-> - Think of an overview for the project, your motivation, and the target audience.
+The NBA community has a lot of visualisations and analyses already, however, we have identified some interesting ideas that have not yet been explored much (to our knowledge).
+Our goal through this project is to be able to create some new visualisations that are informative and interesting for NBA fans.
 
-We are exploring many different directions for our visualisation. Some of our visualisation ideas are to explore where the players for every team come from, making bubble plots using four key factors for each N-man lineup with cross talk,
+We are exploring many different directions for our visualisation. Our main visualisation ideas are:
+- visualising the path of each player to their current team
+- looking at players' performance and how being traded, getting injured, and so on affects their impact
+- highlighting the differences in performance between the regular season and the post-season of certain players 
+- using game-to-game win probabilities to historically look at the biggest upsets
+
+
 
 ### Exploratory Data Analysis
 
