@@ -136,8 +136,8 @@ def check_season_order(player_df):
 def get_and_sort_raptor():
     """Get the raptor data and sort it so that the teams (of each player) are in chronological order
     """
-    raptor_df_historical = pd.read_csv("nba-raptor/historical_RAPTOR_by_team.csv")
-    raptor_df_latest = pd.read_csv("nba-raptor/latest_RAPTOR_by_team.csv")
+    raptor_df_historical = pd.read_csv("datasets/nba-raptor/historical_RAPTOR_by_team.csv")
+    raptor_df_latest = pd.read_csv("datasets/nba-raptor/latest_RAPTOR_by_team.csv")
     raptor_df_latest = raptor_df_latest[raptor_df_historical.columns]
     raptor_df = pd.concat([raptor_df_historical, raptor_df_latest])
     # make it so that PO comes after RS

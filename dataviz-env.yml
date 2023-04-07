@@ -1,0 +1,21 @@
+name: dataviz
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+  - seaborn
+  - jupyterlab
+  - ipywidgets
+  - tqdm
+  - geopandas
+  - xarray
+  - pandas
+  - ipython
+  - pip
+  - scipy
+  - numpy
+  - matplotlib
+  - cartopy
+  - fiona
+  - holoviews
+  - rasterio
