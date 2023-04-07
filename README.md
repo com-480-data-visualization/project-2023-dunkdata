@@ -73,9 +73,9 @@ _**Please note:** we have split our EDA across 3 notebooks, one looking at each 
 
 * There are hardly any missing values in the RAPTOR datasets. This is because a player either plays in a season, in which case all the stats for that particular season are calculated, or they don't play, in which case there is no entry for that player for that year.
 
-* The player with the highest total RAPTOR SCORE at a given team has been Stephen Curry at GSW with a cumulative RAPTOR score of 136.80
+* The player with the highest total RAPTOR SCORE at a given team has been Stephen Curry at GSW with a cumulative RAPTOR score of 136.80.
 
-* The player with the largest difference between total RAPTOR score is Alize Johnson, with 99.09 at IND and -12.72 at CHI
+* The player with the largest difference between total RAPTOR score is Alize Johnson, with 99.09 at IND and -12.72 at CHI.
 
 #### EDA on nba-forecast dataset
 
