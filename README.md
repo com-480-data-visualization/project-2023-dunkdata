@@ -33,7 +33,7 @@ _After filtering in this way, the dataset is quite clean already and ready for v
 
 **nba-forecasts**
 
-_TODO_
+This dataset is quite clean already for the purposes we need. The columns we are interested in for our visualisations (team and elo related columns) do not have missing values (other than future games which we can't have those values yet, and we want to ignore anyway). The dataset does include some advanced statistics which are only available for a small subset of games, however our elo related visualisations do not require these.
 
 #### _NBA data_
 
@@ -49,7 +49,7 @@ We use the Kaggle dataset [NBA Database](https://www.kaggle.com/datasets/wyattow
 > - What am I trying to show with my visualization?
 > - Think of an overview for the project, your motivation, and the target audience.
 
-We are exploring many different directions for our visualisation. Some of our visualisation ideas are to explore where the players for every team come from, making bubble plots using four key factors for each N-man lineup with cross talk, 
+We are exploring many different directions for our visualisation. Some of our visualisation ideas are to explore where the players for every team come from, making bubble plots using four key factors for each N-man lineup with cross talk,
 
 ### Exploratory Data Analysis
 
