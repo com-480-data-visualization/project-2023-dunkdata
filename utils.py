@@ -158,7 +158,7 @@ def get_and_sort_raptor():
             print(player_id)
             print(e)
     player_dfs = pd.concat(player_dfs)
-    player_dfs.to_csv("nba-raptor/historical_latest_RAPTOR_by_team.csv", index=False)
+    player_dfs.to_csv("datasets/nba-raptor/historical_latest_RAPTOR_by_team.csv", index=False)
     return player_dfs
 
 
