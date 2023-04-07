@@ -47,12 +47,14 @@ Our goal through this project is to be able to create some new visualisations th
 We are exploring many different directions for our visualisation. Our main visualisation ideas are:
 - visualising the path of each player to their current team
 - looking at players' performance and how being traded, getting injured, and so on affects their impact
-- highlighting the differences in performance between the regular season and the post-season of certain players 
+- highlighting the differences in performance between the regular season and the post-season of certain players
 - using game-to-game win probabilities to historically look at the biggest upsets
 
 
 
 ### Exploratory Data Analysis
+
+_**Please note:** we have split our EDA across 3 notebooks, one looking at each main dataset/visualisation idea._
 
 #### Descriptive statistics of the NBA dataset
 
@@ -71,10 +73,16 @@ We are exploring many different directions for our visualisation. Our main visua
 
 * There are hardly any missing values in the RAPTOR datasets. This is because a player either plays in a season, in which case all the stats for that particular season are calculated, or they don't play, in which case there is no entry for that player for that year.
 
+#### EDA on nba-forecast dataset
+
+- Contains data on 73273 games since 1946 in the NBA (including playoffs)
+
+- Example plot showing unlikely games won/lost over a season based on winning/losing a game with elo probability > 0.65
+![unlikely wins](assets/eda_plots/2022_elo_progression.png)
 
 ### Related work
 
-The data which comes from FiveThirtyEight has of course been explored already in their articles/tools about their [RAPTOR advanced stat](https://projects.fivethirtyeight.com/nba-player-ratings/) and for [forecasting the NBA season](https://projects.fivethirtyeight.com/2023-nba-predictions/). Our take on this data however is different to what they look at. For example, with the elo data, we are more so interested in using this historically to visualise things like the biggest 'upsets' (i.e. most unlikely wins) in a season, which is not something FiveThirtyEight does. For the RAPTOR data, rather than looking at a player's stats across an entire season, we're interested in using the RAPTOR stat as a metric to measure player impact, to ultimately visualise player performance under different conditions (e.g. regular season vs playoffs, when moving from one team to another in the season etc). 
+The data which comes from FiveThirtyEight has of course been explored already in their articles/tools about their [RAPTOR advanced stat](https://projects.fivethirtyeight.com/nba-player-ratings/) and for [forecasting the NBA season](https://projects.fivethirtyeight.com/2023-nba-predictions/). Our take on this data however is different to what they look at. For example, with the elo data, we are more so interested in using this historically to visualise things like the biggest 'upsets' (i.e. most unlikely wins) in a season, which is not something FiveThirtyEight does. For the RAPTOR data, rather than looking at a player's stats across an entire season, we're interested in using the RAPTOR stat as a metric to measure player impact, to ultimately visualise player performance under different conditions (e.g. regular season vs playoffs, when moving from one team to another in the season etc).
 
 Other than FiveThirtyEight, there are been many other NBA visualisation projects which people have done. We took inspiration from some of these for the types of visualisations we could show, but mainly we decided our visualisations based on things we'd be interested in as NBA fans.
 
