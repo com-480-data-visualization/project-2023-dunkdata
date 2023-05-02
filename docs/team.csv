@@ -1,0 +1,33 @@
+id,full_name,abbreviation,nickname,city,state,year_founded,state_abbrv,location,x,y,longitude,latitude
+1610612737,Atlanta Hawks,ATL,Hawks,Atlanta,Georgia,1949.0,GA,"Atlanta, GA",-84.3902644,33.7489924,-84.3902644,33.7489924
+1610612738,Boston Celtics,BOS,Celtics,Boston,Massachusetts,1946.0,MA,"Boston, MA",-71.060511,42.3554334,-71.060511,42.3554334
+1610612739,Cleveland Cavaliers,CLE,Cavaliers,Cleveland,Ohio,1970.0,OH,"Cleveland, OH",-81.6936772,41.4996574,-81.6936772,41.4996574
+1610612740,New Orleans Pelicans,NOP,Pelicans,New Orleans,Louisiana,2002.0,LA,"New Orleans, LA",-90.0782127,29.9759983,-90.0782127,29.9759983
+1610612741,Chicago Bulls,CHI,Bulls,Chicago,Illinois,1966.0,IL,"Chicago, IL",-87.6244212,41.8755616,-87.6244212,41.8755616
+1610612742,Dallas Mavericks,DAL,Mavericks,Dallas,Texas,1980.0,TX,"Dallas, TX",-96.7968559,32.7762719,-96.7968559,32.7762719
+1610612743,Denver Nuggets,DEN,Nuggets,Denver,Colorado,1976.0,CO,"Denver, CO",-104.984862,39.7392364,-104.984862,39.7392364
+1610612744,Golden State Warriors,GSW,Warriors,Golden State,California,1946.0,CA,"Golden State, CA",-122.2921365,37.8546664,-122.2921365,37.8546664
+1610612745,Houston Rockets,HOU,Rockets,Houston,Texas,1967.0,TX,"Houston, TX",-95.3676974,29.7589382,-95.3676974,29.7589382
+1610612746,Los Angeles Clippers,LAC,Clippers,Los Angeles,California,1970.0,CA,"Los Angeles, CA",-118.242766,34.0536909,-118.242766,34.0536909
+1610612747,Los Angeles Lakers,LAL,Lakers,Los Angeles,California,1948.0,CA,"Los Angeles, CA",-118.242766,34.0536909,-118.242766,34.0536909
+1610612748,Miami Heat,MIA,Heat,Miami,Florida,1988.0,FL,"Miami, FL",-80.19362,25.7741728,-80.19362,25.7741728
+1610612749,Milwaukee Bucks,MIL,Bucks,Milwaukee,Wisconsin,1968.0,WI,"Milwaukee, WI",-87.922497,43.0349931,-87.922497,43.0349931
+1610612750,Minnesota Timberwolves,MIN,Timberwolves,Minnesota,Minnesota,1989.0,MN,"Minnesota, MN",-92.12848921278928,46.7606523,-92.12848921278928,46.7606523
+1610612751,Brooklyn Nets,BKN,Nets,Brooklyn,New York,1976.0,NY,"Brooklyn, NY",-73.9497211,40.6526006,-73.9497211,40.6526006
+1610612751,Brooklyn Nets,BRK,Nets,Brooklyn,New York,1976.0,NY,"Brooklyn, NY",-73.9497211,40.6526006,-73.9497211,40.6526006
+1610612752,New York Knicks,NYK,Knicks,New York,New York,1946.0,NY,"New York, NY",-74.0060152,40.7127281,-74.0060152,40.7127281
+1610612753,Orlando Magic,ORL,Magic,Orlando,Florida,1989.0,FL,"Orlando, FL",-81.3790304,28.5421109,-81.3790304,28.5421109
+1610612754,Indiana Pacers,IND,Pacers,Indiana,Indiana,1976.0,IN,"Indiana, IN",-85.0562084,41.0975573,-85.0562084,41.0975573
+1610612755,Philadelphia 76ers,PHI,76ers,Philadelphia,Pennsylvania,1949.0,PA,"Philadelphia, PA",-75.1635262,39.9527237,-75.1635262,39.9527237
+1610612756,Phoenix Suns,PHX,Suns,Phoenix,Arizona,1968.0,AZ,"Phoenix, AZ",-112.074141,33.4484367,-112.074141,33.4484367
+1610612756,Phoenix Suns,PHO,Suns,Phoenix,Arizona,1968.0,AZ,"Phoenix, AZ",-112.074141,33.4484367,-112.074141,33.4484367
+1610612757,Portland Trail Blazers,POR,Trail Blazers,Portland,Oregon,1970.0,OR,"Portland, OR",-122.674194,45.5202471,-122.674194,45.5202471
+1610612758,Sacramento Kings,SAC,Kings,Sacramento,California,1948.0,CA,"Sacramento, CA",-121.493895,38.5810606,-121.493895,38.5810606
+1610612759,San Antonio Spurs,SAS,Spurs,San Antonio,Texas,1976.0,TX,"San Antonio, TX",-98.4951405,29.4246002,-98.4951405,29.4246002
+1610612760,Oklahoma City Thunder,OKC,Thunder,Oklahoma City,Oklahoma,1967.0,OK,"Oklahoma City, OK",-97.5170536,35.4729886,-97.5170536,35.4729886
+1610612761,Toronto Raptors,TOR,Raptors,Toronto,Ontario,1995.0,ON,"Toronto, ON",-79.383961,43.6534733,-79.383961,43.6534733
+1610612762,Utah Jazz,UTA,Jazz,Utah,Utah,1974.0,UT,"Utah, UT",-111.69107185434031,40.177058,-111.69107185434031,40.177058
+1610612763,Memphis Grizzlies,MEM,Grizzlies,Memphis,Tennessee,1995.0,TN,"Memphis, TN",-90.0517638,35.1460249,-90.0517638,35.1460249
+1610612764,Washington Wizards,WAS,Wizards,Washington,District of Columbia,1961.0,DC,"Washington, DC",-77.0365427,38.8950368,-77.0365427,38.8950368
+1610612765,Detroit Pistons,DET,Pistons,Detroit,Michigan,1948.0,MI,"Detroit, MI",-83.0466403,42.3315509,-83.0466403,42.3315509
+1610612766,Charlotte Hornets,CHA,Hornets,Charlotte,North Carolina,1988.0,NC,"Charlotte, NC",-80.8430827,35.2272086,-80.8430827,35.2272086

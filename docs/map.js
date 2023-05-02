@@ -103,7 +103,7 @@ class NBAMap {
         });
 
         // test coords only, will load actual data later
-        let dur = 1000; // Duration of animation in milliseconds
+        let dur = 200; // Duration of animation in milliseconds
         let atlantaCoords = [-84.39, 33.75];
         let bostonCoords = [-71.06, 42.36];
         let laCoords = [-118.25, 34.05];
