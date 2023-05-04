@@ -1,8 +1,8 @@
 class NBAMap {
 
     constructor(svg_id, div_id) {
+        // this.teamSelect = d3.select("#" + div_id).append("select")
         this.svg = d3.select('#' + svg_id);
-
 		//Get the svg dimensions
 		const svg_viewbox = this.svg.node().viewBox.animVal;
 		this.svg_width = svg_viewbox.width;
@@ -65,6 +65,44 @@ class NBAMap {
                     svg.select("#tooltip").remove();
                 });
         }
+
+        let createDropdown = function(svg, data, projection) {
+            let teamNames = data.map(function(d) { return d.nickname; });
+            // let teamSelect = d3.select("#" + div_id)
+            let teamSelect = d3.select("#map-team-select")
+                // .append("select")
+                .attr("id", "team-select")
+                .on("change", function() {
+                    let selectedTeam = d3.select(this).property("value");
+                    let selectedTeamData = data.filter(function(d) {
+                        return d.nickname === selectedTeam;
+                    });
+                    let selectedTeamCoords = [selectedTeamData[0].longitude, selectedTeamData[0].latitude];
+                    let projected = projection(selectedTeamCoords);
+                    if (!projected) return null;
+                    d3.select("#selected-team").remove();
+                    d3.select("#selected-team-label").remove();
+                    svg.append("circle")
+                        .attr("id", "selected-team")
+                        .attr("cx", projected[0])
+                        .attr("cy", projected[1])
+                        .attr("r", 10)
+                        .style("fill", "orange")
+                        // .style("stroke", "gray")
+                        // .style("stroke-width", 0.25)
+                        // .style("opacity", 0.75);
+                    svg.append("text")
+                        .attr("id", "selected-team-label")
+                        .attr("x", projected[0] + 10)
+                        .attr("y", projected[1] + 10)
+                        .text(selectedTeam);
+                });
+            teamSelect.selectAll("option")
+                .data(teamNames)
+                .join("option")
+                .attr("value", function(d) { return d; })
+                .text(function(d) { return d; });
+        }
         
         //Width and height
         // let w = this.svg_width;
@@ -98,18 +136,23 @@ class NBAMap {
                 });
 
             d3.csv("team.csv").then(function(data) {
+                // create a dropdown menu to select a team
                 createCircles(svg, data, projection);
+                createDropdown(svg, data, projection)
             });
         });
 
         // test coords only, will load actual data later
         let dur = 200; // Duration of animation in milliseconds
-        let atlantaCoords = [-84.39, 33.75];
+        // let atlantaCoords = [-84.39, 33.75];
+        let torontoCoords = [-79.38, 43.65];
         let bostonCoords = [-71.06, 42.36];
         let laCoords = [-118.25, 34.05];
         let chicagoCoords = [-87.63, 41.88];
         let parisCoords = [2.35, 48.86];
-        let coords = [parisCoords, bostonCoords, atlantaCoords, laCoords, chicagoCoords];
+        let melbourneCoords = [144.96, -37.81];
+        // let anchorageCoords = [-149.90, 61.22];
+        let coords = [parisCoords, bostonCoords, torontoCoords, laCoords, chicagoCoords];
 
         let drawPath = function(feature, dur) {
             let pathGenerator = getGeoGenerator(projection);
