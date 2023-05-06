@@ -18,6 +18,7 @@
 
 **10% of the final grade**
 
+[Milestone 2 submission](milestone2.md)
 
 ## Milestone 3 (4th June, 5pm)
 
