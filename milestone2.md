@@ -56,4 +56,5 @@ There are numerous key components to our visualisations, for which we will be us
   - Map with NBA cities
 - Javascript, HTML and CSS - Lectures: Javascript, Basic Web Development
   - Website implementation
+  - Based on the following template: https://html5up.net/massively
 
