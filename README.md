@@ -20,6 +20,8 @@
 
 [Milestone 2 submission](milestone2.md)
 
+[Link to website](https://com-480-data-visualization.github.io/project-2023-dunkdata/)
+
 ## Milestone 3 (4th June, 5pm)
 
 **80% of the final grade**
