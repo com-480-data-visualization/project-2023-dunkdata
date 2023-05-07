@@ -12,6 +12,7 @@ One of the most popular points of discussion among NBA fans is which players ste
 To do this, we use the all-encompassing RAPTOR advanced statistic from FiveThirthyEight to measure offensive and defensive performance across the regular and post-season. As seen in the demonstrative sketch below, we will create a scatter plot with 4 quadrants, showing the differences in performance (playoff minus regular season) for each player in a given season. Additionally, we will show players either from all teams or a user-specified team.
 
 ![Player Performance](assets/milestone2_sketches/viz_2.png)
+###### Sketch edited from: https://statstown.files.wordpress.com/2022/01/drb_plot-1.png?w=1024
 
 _MVP:_ scatter plot with dots, hover points to see player names and metric values, filtering by season and team.
 
