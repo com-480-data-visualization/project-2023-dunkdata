@@ -1,7 +1,7 @@
 # Milestone 2
 
 ## Introduction
-This project aims to create visualisations to unveil new insights into the NBA. The three main themes we explore are: player performance, team performance and player movement. Below we describe the core visualisations for each of these themes.
+Being such a hugely popular sports league with millions of fans around the world, there are inevitably many narratives and player/team reputations which commonly pop up in NBA discourse. Whilst many of these narratives are backed by statistics, others are often strongly influenced by recency bias or fueled by factors such as the general likeability of a team/player. By exploring three main themes surrounding NBA discourse - namely player performance, team performance and player movement - we aim to create visualisations to verify whether or not some of these common narratives are actually true. Below we describe the core visualisations for each of these themes.
 
 ## Sketches of the Proposed Visualisations
 
@@ -19,7 +19,7 @@ _Extensions:_ allowing the user to visualise additional metrics on a similar plo
 
 ### Team Performance: 
 
-In a typical NBA season, each of the 30 teams play 82 regular season games (+ additional playoff games if they qualify), with roughly half of these being at home and half on the road. With this visualisation, we aim to capture both head-to-head and home vs away performance for each team. 
+In a typical NBA season, each of the 30 teams play 82 regular season games (+ additional playoff games if they qualify), with roughly half of these being at home and half on the road. Often, certain teams will get labelled as being a bad road team, or they might have a reputation for having a big home court advantage or dominating a certain matchup etc. With this visualisation, we aim to capture both head-to-head and home vs away performance for each team to see if these reputations hold up in reality. 
 
 We will make a visualisation as shown below, where a user can select a given team and a metric they’re interested in, to:
 - See aggregated stats for all home vs away games
@@ -39,7 +39,7 @@ As a final interesting visualisation, we aim to display a player’s team histor
 
 _MVP:_ given a team, season and player, show a graph of the teams that player has played for on a map
 
-_Extensions:_ given a team and season, show the trajectories for all players of that team on the same map (greyed out), and allow user to hover/select a specific player to highlight their trajectory. Make the graph directed. Include the players’ pre-NBA team, (either college or professional)
+_Extensions:_ given a team and season, show the trajectories for all players of that team on the same map (greyed out), and allow user to hover/select a specific player to highlight their trajectory. Make the graph directed (either with animations or arrows). Include the players’ pre-NBA team, (either college or professional)
 
 ### Tools
 
