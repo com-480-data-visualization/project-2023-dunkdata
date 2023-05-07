@@ -33,13 +33,13 @@ _Extension:_ allow the user to select a timeframe for the visualisation, adjust 
 
 ### Player Movement:
 
-As a final visualisation, we aim to display a player’s team history by showing the path of a certain player through different teams they played for leading up to a given team/season. This visualisation is less of a way to verify a common narrative and more so just a novel and interesting way to see this information.
+As a final visualisation, we aim to display a player’s team history in a novel way, showing the path of a certain player through different teams they played for leading up to a given team/season. This visualisation is an interesting way to see the league's journeymen, and answer questions such as which teams have more stable rosters etc.
 
 ![Player Movement](assets/milestone2_sketches/viz_1.png)
 
 _MVP:_ given a team, season and player, show a graph of the teams that player has played for on a map
 
-_Extensions:_ given a team and season, show the trajectories for all players of that team on the same map (greyed out), and allow user to hover/select a specific player to highlight their trajectory. Make the graph directed (either with animations or arrows). Include the players’ pre-NBA team, (either college or professional)
+_Extensions:_ given a team and season, show the trajectories for all players of that team on the same map (greyed out), and allow user to hover/select a specific player to highlight their trajectory. Make the graph directed (either with animations or arrows). Include the players’ pre-NBA team, (either college or professional). Color gradient for the trajectory according to how many seasons ago each move was made.
 
 ### Tools
 
