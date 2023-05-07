@@ -33,7 +33,7 @@ _Extension:_ allow the user to select a timeframe for the visualisation, adjust 
 
 ### Player Movement:
 
-As a final interesting visualisation, we aim to display a player’s team history in a novel way, showing the path of a certain player through different teams they played for leading up to a given team/season.
+As a final visualisation, we aim to display a player’s team history by showing the path of a certain player through different teams they played for leading up to a given team/season. This visualisation is less of a way to verify a common narrative and more so just a novel and interesting way to see this information.
 
 ![Player Movement](assets/milestone2_sketches/viz_1.png)
 
