@@ -1,18 +1,17 @@
 class NBAMap {
 
     constructor(svg_id, div_id) {
-        // this.teamSelect = d3.select("#" + div_id).append("select")
         this.svg = d3.select('#' + svg_id);
 		//Get the svg dimensions
 		const svg_viewbox = this.svg.node().viewBox.animVal;
 		this.svg_width = svg_viewbox.width;
 		this.svg_height = svg_viewbox.height;
 
-        let getGeoGenerator = function(projection) {
+        function getGeoGenerator(projection) {
             return d3.geoPath().projection(projection);
         }
         
-        let createGeojson = function(usjson, cajson) {
+        function createGeojson(usjson, cajson) {
             //Load in GeoJSON data
             let usFeatures = topojson.feature(usjson, usjson.objects.default).features;
             let caFeatures = topojson.feature(cajson, cajson.objects.default).features;
@@ -20,7 +19,7 @@ class NBAMap {
             return geojson;
         }
         
-        let createCircles = function(svg, data, projection) {
+        function createCircles(svg, data, projection) {
             // Create circles and tooltip labels
             let circles = svg.selectAll("circle")
                 .data(data)
@@ -43,73 +42,250 @@ class NBAMap {
                 });
 
             circles.on("mouseover", function(event, d) {
-                    d3.select(this)
+                d3.select(this)
                     .transition()
                     .duration(200)
                     .attr("r", 10)
                     .style("fill", "orange");
-                    let projected = projection([d.longitude, d.latitude]);
-                    svg.append("text")
+                let projected = projection([d.longitude, d.latitude]);
+                svg.append("text")
                     .attr("id", "tooltip")
                     .attr("x", projected[0] + 10)
                     .attr("y", projected[1] + 10)
                     .text(d.nickname);
-                })
-                .on("mouseout", function(event, d) {
-                    d3.select(this)
+            })
+            .on("mouseout", function(event, d) {
+                d3.select(this)
                     .transition()
                     .duration(200)
                     .attr("r", 5)
                     .style("fill", "red");
+                svg.select("#tooltip").remove();
+            });
+        }
 
+        function createDropdown(svg, teamData, journeyData, projection) {
+            const teamSelect = d3.select("#map-team-select")
+              .attr("id", "team-select")
+              .on("change", handleTeamSelect);
+          
+            const seasonSelect = d3.select("#map-season-select")
+              .attr("id", "season-select")
+              .on("change", handleSeasonSelect);
+            
+            const playerSelect = d3.select("#map-player-select")
+                .attr("id", "player-select")
+                .on("change", handlePlayerSelect);
+          
+            const seasons = generateSeasons(1977, 2023);
+            populateDropdown(seasonSelect, seasons);
+            setDefaultValue(seasonSelect, seasons[0]);
+          
+            function handleTeamSelect() {
+                d3.selectAll(".journey-path").remove();
+                const selectedTeam = d3.select(this).property("value");
+                const selectedTeamData = filterTeamDataByNickname(teamData, selectedTeam);
+                const selectedTeamCoords = [selectedTeamData[0].longitude, selectedTeamData[0].latitude];
+                const projected = projection(selectedTeamCoords);
+            
+                if (!projected) return null;
+            
+                d3.select("#selected-team").remove();
+                d3.select("#selected-team-label").remove();
+            
+                svg.append("circle")
+                    .attr("id", "selected-team")
+                    .attr("cx", projected[0])
+                    .attr("cy", projected[1])
+                    .attr("r", 10)
+                    .style("fill", "orange");
+            
+                svg.append("text")
+                    .attr("id", "selected-team-label")
+                    .attr("x", projected[0] + 10)
+                    .attr("y", projected[1] + 10)
+                    .text(selectedTeam);
+
+                const selectedSeason = seasonSelect.property("value");
+                const selectedSeasonNum = getSelectedSeasonNum(selectedSeason);
+                const selectedSeasonData = filterJourneyDataBySeason(journeyData, selectedSeasonNum);
+                const selectedSeasonAndTeamData = filterJourneyDataByTeam(selectedSeasonData, selectedTeam);
+                const playerNamesInSeasonAndTeam = getUniquePlayerNames(selectedSeasonAndTeamData);
+                const sortedPlayerNames = sortPlayerNames(playerNamesInSeasonAndTeam);
+
+                populateDropdown(playerSelect, sortedPlayerNames);
+                
+                // this is a list of journeys of each player in the selected team
+                const journeys = getPlayerJourneyData(sortedPlayerNames, journeyData);
+                const journeyCoords = getJourneyCoords(journeys, teamData);
+                // for each journey, draw a path
+                drawJourneyPaths(svg, journeyCoords, projection, sortedPlayerNames);
+
+                const current = playerSelect.property("value");
+                playerSelect.property("value", sortedPlayerNames.includes(current) ? current : sortedPlayerNames[0]);
+                playerSelect.dispatch("change");
+            }
+          
+            function handleSeasonSelect() {
+                const selectedSeason = d3.select(this).property("value");
+                const selectedSeasonNum = getSelectedSeasonNum(selectedSeason);
+                const selectedSeasonData = filterJourneyDataBySeason(journeyData, selectedSeasonNum);
+                const teamNamesInSeason = getUniqueTeamNames(selectedSeasonData);
+                const sortedTeamNames = sortTeamNames(teamNamesInSeason);
+            
+                populateDropdown(teamSelect, sortedTeamNames);
+            
+                const selectedTeam = teamSelect.property("value");
+                teamSelect.property("value", sortedTeamNames.includes(selectedTeam) ? selectedTeam : sortedTeamNames[0]);
+                teamSelect.dispatch("change");
+            }
+          
+            function generateSeasons(startYear, endYear) {
+                const seasons = [];
+                for (let i = startYear; i < endYear; i++) {
+                    seasons.push(`${i}-${(i + 1).toString().slice(-2)}`);
+                }
+                return seasons;
+            }
+          
+            function populateDropdown(selectElement, options) {
+                selectElement.selectAll("option")
+                    .data(options)
+                    .join("option")
+                    .attr("value", (d) => d)
+                    .text((d) => d);
+            }
+          
+            function getSelectedSeasonNum(selectedSeason) {
+                return (Number(selectedSeason.slice(0, 4)) + 1).toString();
+            }
+          
+            function filterJourneyDataBySeason(journeyData, selectedSeasonNum) {
+                return journeyData.filter((d) => d.season === selectedSeasonNum);
+            }
+          
+            function getUniqueTeamNames(data) {
+                return Array.from(new Set(data.map((d) => d.team)));
+            }
+          
+            function sortTeamNames(teamNames) {
+                return teamNames.sort((a, b) => a.localeCompare(b));
+            }
+          
+            function filterTeamDataByNickname(teamData, selectedTeam) {
+                return teamData.filter((d) => d.nickname === selectedTeam);
+            }
+          
+            function setDefaultValue(selectElement, defaultValue) {
+                selectElement.property("value", defaultValue);
+                selectElement.dispatch("change");
+            }
+
+            function handlePlayerSelect() {
+                const selectedPlayer = d3.select(this).property("value");            
+                const journeyPaths = svg.selectAll(".journey-path");
+
+                journeyPaths.style("stroke-width", (d, i) => {
+                    const playerName = d.properties.player;
+                    return playerName === selectedPlayer ? 3 : 0.5;
+                });
+            }
+
+            function getUniquePlayerNames(data) {
+                return Array.from(new Set(data.map((d) => d.player_name)));
+            }
+
+            function sortPlayerNames(playerNames) {
+                return playerNames.sort((a, b) => a.localeCompare(b));
+            }
+
+            function filterJourneyDataByTeam(data, selectedTeam) {
+                return data.filter((d) => d.team === selectedTeam);
+            }
+
+            // for each player in playerNames, get the player's journey data
+            function getPlayerJourneyData(playerNames, journeyData) {
+                const selectedSeason = seasonSelect.property("value");
+                const selectedSeasonNum = getSelectedSeasonNum(selectedSeason);
+                return playerNames.map((playerName) => {
+                    return journeyData
+                        .filter((d) => d.player_name === playerName && d.season <= selectedSeasonNum)
+                        .map((row) => row.team);
+
+                });
+            }
+
+            function getJourneyCoords(journeys) {
+                // get the coordinates of each team in the journey
+                return journeys.map((journey) => {
+                    return journey.map((team) => {
+                        // if teamRow has more than one row, then the team has multiple abbreviations in `team.csv`
+                        const teamRow = teamData.filter((d) => d.nickname === team)[0];
+                        return [teamRow.longitude, teamRow.latitude];
+                    });
+                });
+            }
+
+            function drawJourneyPaths(svg, journeyCoords, projection, sortedPlayerNames) {
+                const pathGenerator = getGeoGenerator(projection);
+              
+                const features = journeyCoords.flatMap((journey, index) =>
+                    journey.slice(0, -1).map((coord, innerIndex) => ({
+                        type: "Feature",
+                        geometry: {
+                            type: "LineString",
+                            coordinates: [coord, journey[innerIndex + 1]]
+                        },
+                        properties: {
+                            player: sortedPlayerNames[index] // Assign player name to each path
+                        }
+                    }))
+                );
+              
+                let journeyPaths = svg.selectAll(".journey-path")
+                    .data(features)
+                    .join("path")
+                    .attr("class", "journey-path")
+                    .attr("id", (d, i) => `journey-path-${i}`) // Add a unique identifier to each path
+                    .attr("d", pathGenerator)
+                    .style("fill", "none")
+                    .style("stroke", "gray")
+                    .style("stroke-width", 0.7);
+
+                journeyPaths.on("mouseover", function(event, d) {
+                    const playerName = d.properties.player;
+                    
+                    svg.selectAll(".journey-path")
+                        .filter(function(pathData) {
+                            return pathData.properties.player === playerName;
+                        })
+                        .transition()
+                        .duration(50)
+                        .style("stroke-width", "3px");
+                    
+                    const [x, y] = d3.pointer(event, svg.node());
+                    
+                    svg.append("text")
+                        .attr("id", "tooltip")
+                        .attr("x", x + 10)
+                        .attr("y", y - 10)
+                        .text(playerName);
+                }).on("mouseout", function(event, d) {
+                    const playerName = d.properties.player;
+                    svg.selectAll(".journey-path")
+                        .filter(function(pathData) {
+                            return pathData.properties.player === playerName;
+                        })
+                        .transition()
+                        .duration(50)
+                        .style("stroke-width", "0.7px");                      
                     svg.select("#tooltip").remove();
                 });
+            }
         }
-
-        let createDropdown = function(svg, data, projection) {
-            let teamNames = data.map(function(d) { return d.nickname; });
-            // let teamSelect = d3.select("#" + div_id)
-            let teamSelect = d3.select("#map-team-select")
-                // .append("select")
-                .attr("id", "team-select")
-                .on("change", function() {
-                    let selectedTeam = d3.select(this).property("value");
-                    let selectedTeamData = data.filter(function(d) {
-                        return d.nickname === selectedTeam;
-                    });
-                    let selectedTeamCoords = [selectedTeamData[0].longitude, selectedTeamData[0].latitude];
-                    let projected = projection(selectedTeamCoords);
-                    if (!projected) return null;
-                    d3.select("#selected-team").remove();
-                    d3.select("#selected-team-label").remove();
-                    svg.append("circle")
-                        .attr("id", "selected-team")
-                        .attr("cx", projected[0])
-                        .attr("cy", projected[1])
-                        .attr("r", 10)
-                        .style("fill", "orange")
-                        // .style("stroke", "gray")
-                        // .style("stroke-width", 0.25)
-                        // .style("opacity", 0.75);
-                    svg.append("text")
-                        .attr("id", "selected-team-label")
-                        .attr("x", projected[0] + 10)
-                        .attr("y", projected[1] + 10)
-                        .text(selectedTeam);
-                });
-            teamSelect.selectAll("option")
-                .data(teamNames)
-                .join("option")
-                .attr("value", function(d) { return d; })
-                .text(function(d) { return d; });
-        }
-        
-        //Width and height
-        // let w = this.svg_width;
-        // let h = this.svg_height;
 
         let projection = this.createProjection();
-        // let svg = createSvgElement(w, h);
+
         let svg = this.svg; // can't use this.svg in .then()
 
         //Load in GeoJSON data
@@ -134,130 +310,17 @@ class NBAMap {
                         return 0.5;
                     }
                 });
-
-            d3.csv("team.csv").then(function(data) {
+            Promise.all([
+                d3.csv("team.csv"),
+                d3.csv("journey.csv")
+            ]).then(function(values) {
+                let teamData = values[0];
+                let journeyData = values[1];
                 // create a dropdown menu to select a team
-                createCircles(svg, data, projection);
-                createDropdown(svg, data, projection)
+                createCircles(svg, teamData, projection);
+                createDropdown(svg, teamData, journeyData, projection)
             });
         });
-
-        // test coords only, will load actual data later
-        let dur = 200; // Duration of animation in milliseconds
-        // let atlantaCoords = [-84.39, 33.75];
-        let torontoCoords = [-79.38, 43.65];
-        let bostonCoords = [-71.06, 42.36];
-        let laCoords = [-118.25, 34.05];
-        let chicagoCoords = [-87.63, 41.88];
-        let parisCoords = [2.35, 48.86];
-        let melbourneCoords = [144.96, -37.81];
-        // let anchorageCoords = [-149.90, 61.22];
-        let coords = [parisCoords, bostonCoords, torontoCoords, laCoords, chicagoCoords];
-
-        let drawPath = function(feature, dur) {
-            let pathGenerator = getGeoGenerator(projection);
-            let path = svg.append("path")
-                .datum(feature)
-                .attr("class", "animated-path")
-                .attr("d", pathGenerator)
-                .style("fill", "none")
-                .style("stroke", "green")
-                .style("stroke-width", 2);
-            let totalLength = path.node().getTotalLength();
-            path.attr("stroke-dasharray", totalLength + " " + totalLength)
-                .attr("stroke-dashoffset", totalLength)
-                .transition()
-                .duration(dur)
-                .ease(d3.easeLinear)
-                .attr("stroke-dashoffset", 0)
-                .transition()
-                .duration(dur)
-                .ease(d3.easeLinear)
-                .attr("stroke-dashoffset", -totalLength)
-                .remove();
-
-            // Get the coordinates of the destination point
-            let pointCoords = feature.geometry.coordinates[1];
-            let projected = projection(pointCoords);
-            if (!projected) return null;
-            // Create a circle element at the point coordinates
-            let circle = svg.append("circle")
-                .attr("cx", projected[0])
-                .attr("cy", projected[1])
-                .attr("r", 8)
-                .attr("class", "animated-circle")
-                .style("fill", "orange")
-                .style("opacity", 0)
-                .transition()
-                .duration(dur*2)
-                .style("opacity", 1)
-                .transition()
-                .duration(dur*2)
-                .style("opacity", 0)
-                .remove();
-        }
-
-        let drawMovement = function() {
-            let features = [];
-            for (let i = 0; i < coords.length - 1; i++) {
-                let feature = {
-                    type: "Feature",
-                    geometry: {
-                    type: "LineString",
-                    coordinates: [coords[i], coords[i+1]]
-                    },
-                    properties: {}
-                };
-                features.push(feature);
-            }
-
-            let delay = 0;
-            features.forEach(function(feature, i) {
-                setTimeout(function() {
-                    if (!isPaused) {
-                        drawPath(feature, dur);
-                    }
-                }, delay);
-                delay += dur;
-            });
-        }
-
-        let isPaused = false; // Flag to check if animation is paused
-        let animationInterval = null; // Interval for the animation
-
-        let createAnimationInterval = function() {
-            if (animationInterval === null) {
-                animationInterval = window.setInterval(
-                    function() {drawMovement(); return drawMovement}(),
-                    dur*(coords.length-1)
-                );
-            }
-        };
-
-        setTimeout(createAnimationInterval, 500);
-
-        // the pause button is very janky
-        let createPauseButton = function() {
-            // Create a pause button and add it to the page
-            let button = d3.select("#" + div_id)
-                .append("button")
-                .attr("id", "pause-button")
-                .text("Pause");
-            button.on("click", function() {
-                if (isPaused) {
-                    createAnimationInterval();
-                } else {
-                    window.clearInterval(animationInterval);
-                    d3.selectAll(".animated-path").interrupt().remove();
-                    d3.selectAll(".animated-circle").interrupt().remove();
-                    animationInterval = null; // Clear the interval
-                }
-                isPaused = !isPaused;
-            });
-        }
-
-        // Call the function to create the pause button
-        createPauseButton();
     }
 
     createProjection() {
