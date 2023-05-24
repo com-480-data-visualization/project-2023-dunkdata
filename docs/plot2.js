@@ -66,8 +66,20 @@ class Head2Head{
             return geojson;
         }
 
-        function createGradient(games, team, metric){
-            console.log(team, metric);
+        function createGradient(games, team_id, metric_prefix){
+            /* Get only games in which the selected team was the away team 
+            * Group the teams played against and aggregate the relevant stat
+            */
+            const awayGames = games.filter((d) => d.team_id_away === team_id);
+            const groupedGames = d3.group(awayGames, d => d.team_id_home);
+            const aggMetric = {};
+            groupedGames.forEach((stats_at_venue, home_team_id) => {
+                const perf_home = d3.mean(stats_at_venue, d => Number(d[metric_prefix + "_home"])); // how well the home team did
+                const perf_away = d3.mean(stats_at_venue, d => Number(d[metric_prefix + "_away"])); // how well the away team (selected team) did against this home team
+                const matches_played = stats_at_venue.length;
+                aggMetric[home_team_id] = {perf_home, perf_away, matches_played};
+            });
+            console.log(aggMetric["1610612738"].perf_away);
         }
 
         function populateDropdown(selectElement, options) {
