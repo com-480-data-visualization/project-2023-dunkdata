@@ -35,11 +35,16 @@ class Head2Head{
                     return d.nickname + " (" + d.city+ ")";
                 });
 
-            circles.on("mouseover", function(event, d) {
+        circles.on("mouseover", function(event, d) {
+                const prevR = d3.select(this).attr("r");
+                const prevColour = d3.select(this).style("fill");
+                console.log(prevColour);
                 d3.select(this)
                     .transition()
                     .duration(200)
+                    .attr("original-size", prevR)
                     .attr("r", 10)
+                    .attr("original-colour", prevColour)
                     .style("fill", "orange");
                 let projected = projection([d.longitude, d.latitude]);
                 svg.append("text")
@@ -49,13 +54,17 @@ class Head2Head{
                     .text(d.nickname);
             })
             .on("mouseout", function(event, d) {
+                const originalSize = d3.select(this).attr("original-size");
+                const originalColour = d3.select(this).attr("original-colour");
                 d3.select(this)
                     .transition()
                     .duration(200)
-                    .attr("r", 5)
-                    .style("fill", "red");
+                    .attr("r", originalSize)
+                    .style("fill", originalColour);
                 svg.select("#tooltip").remove();
             });
+
+            return circles;
         }
 
         function createGeojson(usjson, cajson) {
@@ -66,7 +75,23 @@ class Head2Head{
             return geojson;
         }
 
-        function createGradient(games, team_id, metric_prefix){
+        function findMinMax(aggMetric) {
+            let l = -Infinity;
+            let s = Infinity;
+          
+            for (const id in aggMetric) {
+              const perfAway = aggMetric[id].perf_away;
+              if(perfAway > l){
+                l = perfAway;
+              }
+              if(perfAway < s){
+                s = perfAway;
+              }
+            }
+            return {largest: l, smallest: s};
+          }
+
+        function createGradient(games, team_id, metric_prefix, circles){
             /* Get only games in which the selected team was the away team 
             * Group the teams played against and aggregate the relevant stat
             */
@@ -79,7 +104,36 @@ class Head2Head{
                 const matches_played = stats_at_venue.length;
                 aggMetric[home_team_id] = {perf_home, perf_away, matches_played};
             });
-            console.log(aggMetric["1610612738"].perf_away);
+            const scores = Object.values(aggMetric).map(d => d.perf_away);
+            const scoreExtent = d3.extent(scores); // gets the range of scores
+
+            // Scale for the radius
+            const radiusScale = d3.scaleLinear()
+            .domain(scoreExtent)
+            .range([0, 10]);
+
+            // Scale for the colour
+            const colorScale = d3.scaleLinear()
+            .domain(scoreExtent)
+            .range(['blue', 'red']);
+
+            circles.attr('r', circle => {
+                const id = circle.id;
+                if (aggMetric.hasOwnProperty(id)) {
+                    const metricVal = aggMetric[id].perf_away;
+                    const radius = radiusScale(metricVal);
+                    return radius;
+                }
+            });
+            
+            circles.style('fill', d => {
+                const id = d.id;
+                if (aggMetric.hasOwnProperty(id)) {
+                  const score = aggMetric[id].perf_away;
+                  return colorScale(score);
+                }
+                return 'gray'; // Default color if ID is not found in the dictionary
+              });
         }
 
         function populateDropdown(selectElement, options) {
@@ -111,13 +165,13 @@ class Head2Head{
             return metricSelect;
         }
 
-        function handleSelect(teamHandler, metricHandler, gameData){
+        function handleSelect(teamHandler, metricHandler, gameData, circles){
             const selectedTeam = teamHandler.property('value');
             const selectedMetric = metricHandler.property('value');
             if(selectedTeam != "--Team--" && selectedMetric != "--Metric--"){
                 // Now that both the options are selected, we can present our visualisation
                 console.log("Time for Action");
-                createGradient(gameData, teamToID[selectedTeam], metricsDict[selectedMetric]);
+                createGradient(gameData, teamToID[selectedTeam], metricsDict[selectedMetric], circles);
             }
             else{
                 console.log("Select Both Options");
@@ -172,15 +226,15 @@ class Head2Head{
                 // Fill up teamToID dictionary 
                 teamData.forEach(element => teamToID[element.nickname] = element.id);
 
-                createCircles(svg, teamData, projection);
+                let circles = createCircles(svg, teamData, projection);
                 const teamSelect = createTeamDD(svg, teamData, projection);
                 const metricSelect = createMetricDD(svg, gameData, projection);
                 
                 teamSelect.on('change', function(){
-                    handleSelect(teamSelect, metricSelect, gameData);
+                    handleSelect(teamSelect, metricSelect, gameData, circles);
                 });
                 metricSelect.on('change', function(){
-                    handleSelect(teamSelect, metricSelect, gameData);
+                    handleSelect(teamSelect, metricSelect, gameData, circles);
                 });
                 
             });
