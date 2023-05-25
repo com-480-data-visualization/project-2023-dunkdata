@@ -38,7 +38,6 @@ class Head2Head{
         circles.on("mouseover", function(event, d) {
                 const prevR = d3.select(this).attr("r");
                 const prevColour = d3.select(this).style("fill");
-                console.log(prevColour);
                 d3.select(this)
                     .transition()
                     .duration(200)
@@ -91,6 +90,51 @@ class Head2Head{
             return {largest: l, smallest: s};
           }
 
+        function createLegend(){
+            const colorRange = ["red", "blue"];
+
+            // Create a linear gradient
+            const gradient = svg.append("defs")
+            .append("linearGradient")
+            .attr("id", "color-gradient")
+            .attr("gradientTransform", "rotate(90)");
+
+            // Add color stops to the gradient
+            gradient.selectAll("stop")
+            .data(colorRange)
+            .enter().append("stop")
+            .attr("offset", (d, i) => i / (colorRange.length - 1))
+            .attr("stop-color", d => d);
+
+            // Define the legend position and dimensions
+            const height = 50;
+            const legendX = 10;
+            const legendY = height - 30;
+            const legendWidth = 20;
+            const legendHeight = 200;
+
+            // Append the legend rectangle
+            svg.append("rect")
+            .attr("x", legendX)
+            .attr("y", legendY)
+            .attr("width", legendWidth)
+            .attr("height", legendHeight)
+            .style("fill", "url(#color-gradient)");
+
+            // Append the legend text
+            svg.append("text")
+            .attr("x", legendX-5)
+            .attr("y", legendY + legendHeight + 15)
+            .attr("text-anchor", "start")
+            .text("Low");
+
+            svg.append("text")
+            .attr("x", legendX + 2*legendWidth-8)
+            .attr("y", legendY - 5)
+            .attr("text-anchor", "end")
+            .text("High");
+        }
+
         function createGradient(games, team_id, metric_prefix, circles){
             /* Get only games in which the selected team was the away team 
             * Group the teams played against and aggregate the relevant stat
@@ -116,6 +160,8 @@ class Head2Head{
             const colorScale = d3.scaleLinear()
             .domain(scoreExtent)
             .range(['blue', 'red']);
+
+            createLegend();
 
             circles.attr('r', circle => {
                 const id = circle.id;
@@ -170,7 +216,6 @@ class Head2Head{
             const selectedMetric = metricHandler.property('value');
             if(selectedTeam != "--Team--" && selectedMetric != "--Metric--"){
                 // Now that both the options are selected, we can present our visualisation
-                console.log("Time for Action");
                 createGradient(gameData, teamToID[selectedTeam], metricsDict[selectedMetric], circles);
             }
             else{
@@ -260,7 +305,5 @@ function whenDocumentLoaded(action) {
 }
 
 function initHead2Head(){
-    console.log(document.readyState);
     h2h_object = new Head2Head("map_h2h", "h2hcontainer");
-    console.log(document.readyState);
 }
