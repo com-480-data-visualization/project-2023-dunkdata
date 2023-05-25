@@ -36,6 +36,7 @@ class Head2Head{
                 
             if(dropdownsActive){
                 const streak = d3.select(this).attr("streak");
+                console.log(streak);
                 var characterWidths = streak.split('').map(function(d) {
                     return d === 'W' ? 16 : 10; // since 'W' is wider than 'L'
                 });
