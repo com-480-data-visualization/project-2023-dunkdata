@@ -1,5 +1,9 @@
 class Head2Head{
     constructor(svg_id, div_id) {
+        let circles;
+        let teamSelect;
+        let metricSelect;
+        let dropdownsActive = false;
         this.svg = d3.select('#' + svg_id);
 		//Get the svg dimensions
 		const svg_viewbox = this.svg.node().viewBox.animVal;
@@ -13,11 +17,71 @@ class Head2Head{
             return d3.geoPath().projection(projection);
         }
 
+        function mouseOver(event, d){
+            const prevR = d3.select(this).attr("r");
+            const prevColour = d3.select(this).style("fill");
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("original-size", prevR)
+                .attr("r", 10)
+                .attr("original-colour", prevColour)
+                .style("fill", "orange");
+            let projected = projection([d.longitude, d.latitude]);
+            svg.append("text")
+                .attr("id", "tooltip")
+                .attr("x", projected[0] + 10)
+                .attr("y", projected[1] + 10)
+                .text(d.nickname);
+                
+            if(dropdownsActive){
+                const streak = d3.select(this).attr("streak");
+                var characterWidths = streak.split('').map(function(d) {
+                    return d === 'W' ? 16 : 10;
+                  });
+                console.log(streak);
+                svg.append("text")
+                    .attr("id", "tooltip")
+                    .attr("x", projected[0] + 20)
+                    .attr("y", projected[1] + 30)
+                    .selectAll("tspan")
+                .data(streak.split(''))
+                .enter()
+                .append("tspan")
+                .attr("x", function(_, i) {
+                    var accumulatedWidth = characterWidths.slice(0, i).reduce(function(sum, width) {
+                      return sum + width;
+                    }, 0);
+                    return projected[0] + 20 + accumulatedWidth;
+                  })
+                .text(function(d) { return d; })
+                .style("fill", function(d) { return d === "L" ? "red" : "green"; });
+            }
+        }
+
+        function mouseOut(event, d){
+            const originalSize = d3.select(this).attr("original-size");
+            const originalColour = d3.select(this).attr("original-colour");
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .attr("r", originalSize)
+                .style("fill", originalColour);
+            svg.select("#tooltip").remove();
+            d3.selectAll('text#tooltip').remove();
+        }
+
+        function mouseInteractions(){
+            circles.on("mouseover", mouseOver)
+            .on("mouseout", mouseOut);
+        }
+
         function createCircles(svg, data, projection) {
-            // Create circles and tooltip labels
-            let circles = svg.selectAll("circle")
+
+            circles = svg.selectAll("circle")
                 .data(data)
                 .join("circle")
+                .attr("id", d => d.id)
                 .attr("cx", function(d) {
                     return projection([d.longitude, d.latitude])[0];
                 })
@@ -35,35 +99,7 @@ class Head2Head{
                     return d.nickname + " (" + d.city+ ")";
                 });
 
-        circles.on("mouseover", function(event, d) {
-                const prevR = d3.select(this).attr("r");
-                const prevColour = d3.select(this).style("fill");
-                d3.select(this)
-                    .transition()
-                    .duration(200)
-                    .attr("original-size", prevR)
-                    .attr("r", 10)
-                    .attr("original-colour", prevColour)
-                    .style("fill", "orange");
-                let projected = projection([d.longitude, d.latitude]);
-                svg.append("text")
-                    .attr("id", "tooltip")
-                    .attr("x", projected[0] + 10)
-                    .attr("y", projected[1] + 10)
-                    .text(d.nickname);
-            })
-            .on("mouseout", function(event, d) {
-                const originalSize = d3.select(this).attr("original-size");
-                const originalColour = d3.select(this).attr("original-colour");
-                d3.select(this)
-                    .transition()
-                    .duration(200)
-                    .attr("r", originalSize)
-                    .style("fill", originalColour);
-                svg.select("#tooltip").remove();
-            });
-
-            return circles;
+            mouseInteractions();
         }
 
         function createGeojson(usjson, cajson) {
@@ -135,18 +171,26 @@ class Head2Head{
             .text("High");
         }
 
-        function createGradient(games, team_id, metric_prefix, circles){
+        function createGradient(games, team_id, metric_prefix){
             /* Get only games in which the selected team was the away team 
             * Group the teams played against and aggregate the relevant stat
             */
             const awayGames = games.filter((d) => d.team_id_away === team_id);
             const groupedGames = d3.group(awayGames, d => d.team_id_home);
             const aggMetric = {};
+            const record = {};
             groupedGames.forEach((stats_at_venue, home_team_id) => {
                 const perf_home = d3.mean(stats_at_venue, d => Number(d[metric_prefix + "_home"])); // how well the home team did
                 const perf_away = d3.mean(stats_at_venue, d => Number(d[metric_prefix + "_away"])); // how well the away team (selected team) did against this home team
                 const matches_played = stats_at_venue.length;
                 aggMetric[home_team_id] = {perf_home, perf_away, matches_played};
+                var lastFive = stats_at_venue.slice(-5).reverse(); // every team has played every other at-least five times
+                // No! Jazz at Thunder?!
+                var streak = "";
+                lastFive.forEach(function(element){
+                    streak += element.wl_away;
+                });
+                record[home_team_id] = streak;
             });
             const scores = Object.values(aggMetric).map(d => d.perf_away);
             const scoreExtent = d3.extent(scores); // gets the range of scores
@@ -170,6 +214,12 @@ class Head2Head{
                     const radius = radiusScale(metricVal);
                     return radius;
                 }
+            });
+
+            circles.attr('streak', circle => {
+                const id = circle.id;
+                if(record.hasOwnProperty(id))
+                    return record[id];
             });
             
             circles.style('fill', d => {
@@ -211,14 +261,16 @@ class Head2Head{
             return metricSelect;
         }
 
-        function handleSelect(teamHandler, metricHandler, gameData, circles){
+        function handleSelect(teamHandler, metricHandler, gameData){
             const selectedTeam = teamHandler.property('value');
             const selectedMetric = metricHandler.property('value');
             if(selectedTeam != "--Team--" && selectedMetric != "--Metric--"){
+                dropdownsActive = true;
                 // Now that both the options are selected, we can present our visualisation
                 createGradient(gameData, teamToID[selectedTeam], metricsDict[selectedMetric], circles);
             }
             else{
+                dropdownsActive = false;
                 console.log("Select Both Options");
                 // Reset, that is, Remove the visualisation (optional)
             }
@@ -271,9 +323,9 @@ class Head2Head{
                 // Fill up teamToID dictionary 
                 teamData.forEach(element => teamToID[element.nickname] = element.id);
 
-                let circles = createCircles(svg, teamData, projection);
-                const teamSelect = createTeamDD(svg, teamData, projection);
-                const metricSelect = createMetricDD(svg, gameData, projection);
+                createCircles(svg, teamData, projection);
+                teamSelect = createTeamDD(svg, teamData, projection);
+                metricSelect = createMetricDD(svg, gameData, projection);
                 
                 teamSelect.on('change', function(){
                     handleSelect(teamSelect, metricSelect, gameData, circles);
