@@ -37,9 +37,8 @@ class Head2Head{
             if(dropdownsActive){
                 const streak = d3.select(this).attr("streak");
                 var characterWidths = streak.split('').map(function(d) {
-                    return d === 'W' ? 16 : 10;
-                  });
-                console.log(streak);
+                    return d === 'W' ? 16 : 10; // since 'W' is wider than 'L'
+                });
                 svg.append("text")
                     .attr("id", "tooltip")
                     .attr("x", projected[0] + 20)
