@@ -1,8 +1,11 @@
 class Head2Head{
     constructor(svg_id, div_id) {
         let circles;
+        let teamData;
+        let gameData;
         let teamSelect;
         let metricSelect;
+        let curTeam;
         let dropdownsActive = false;
         this.svg = d3.select('#' + svg_id);
 		//Get the svg dimensions
@@ -15,6 +18,39 @@ class Head2Head{
 
         function getGeoGenerator(projection) {
             return d3.geoPath().projection(projection);
+        }
+
+        function summary(games){
+            let totalGames = 0;
+            let totalPointsHome = 0;
+            let totalPointsAway = 0;
+            let totalReboundsHome = 0;
+            let totalReboundsHomeCnt = 0;
+            let totalReboundsAway = 0;
+            let totalReboundsAwayCnt = 0;
+            games.forEach(game => {
+                const { pts_home, pts_away, reb_home, reb_away } = game;
+                totalGames++;
+                totalPointsHome += parseInt(pts_home, 10);
+                if(reb_home !== "") {
+                    totalReboundsHome += parseInt(reb_home, 10);
+                    totalReboundsHomeCnt++;
+                }
+              
+                // Aggregate stats for away team
+                totalPointsAway += parseInt(pts_away, 10);
+                if(reb_away !== "") {
+                    totalReboundsAway += parseInt(reb_away, 10);
+                    totalReboundsAwayCnt++;
+                }
+            });
+              
+            // Calculate average stats
+            const averagePointsHome = totalPointsHome / totalGames;
+            const averagePointsAway = totalPointsAway / totalGames;
+            const averageReboundsHome = totalReboundsHome / totalReboundsHomeCnt;
+            const averageReboundsAway = totalReboundsAway / totalReboundsAwayCnt;
+            
         }
 
         function mouseOver(event, d){
@@ -71,9 +107,20 @@ class Head2Head{
             d3.selectAll('text#tooltip').remove();
         }
 
+        function mouseClick(event, d){
+            if(!dropdownsActive)
+                return;
+            // Only triggers when both dropdowns are active
+            const awayGames = gameData.filter((x) => x.team_id_away === curTeam && x.team_id_home === d.id);
+            const reverseFixture = gameData.filter((x) => x.team_id_away === d.id && x.team_id_home === curTeam);
+            const awayDict = summary(awayGames);
+            const homeDict = summary(reverseFixture);
+        }
+
         function mouseInteractions(){
             circles.on("mouseover", mouseOver)
-            .on("mouseout", mouseOut);
+            .on("mouseout", mouseOut)
+            .on("click", mouseClick);
         }
 
         function createCircles(svg, data, projection) {
@@ -171,11 +218,12 @@ class Head2Head{
             .text("High");
         }
 
-        function createGradient(games, team_id, metric_prefix){
+        function createGradient(team_id, metric_prefix){
             /* Get only games in which the selected team was the away team 
             * Group the teams played against and aggregate the relevant stat
             */
-            const awayGames = games.filter((d) => d.team_id_away === team_id);
+            curTeam = team_id; // For the mouseclick event
+            const awayGames = gameData.filter((d) => d.team_id_away === team_id);
             const groupedGames = d3.group(awayGames, d => d.team_id_home);
             const aggMetric = {};
             const record = {};
@@ -185,7 +233,7 @@ class Head2Head{
                 const matches_played = stats_at_venue.length;
                 aggMetric[home_team_id] = {perf_home, perf_away, matches_played};
                 var lastFive = stats_at_venue.slice(-5).reverse(); // every team has played every other at-least five times
-                // No! Jazz at Thunder?!
+                // No! Jazz at Thunder?! What's going on there?
                 var streak = "";
                 lastFive.forEach(function(element){
                     streak += element.wl_away;
@@ -240,7 +288,7 @@ class Head2Head{
                 .text((d) => d);
         }
 
-        function createTeamDD(svg, teamData, projection){
+        function createTeamDD(svg, projection){
             const teamSelect = d3.select("#h2h-team-select")
               .attr("id", "h2h-team-select")
 
@@ -251,7 +299,7 @@ class Head2Head{
             return teamSelect;
         }
 
-        function createMetricDD(svg, metricData, projection){
+        function createMetricDD(svg, projection){
             const metricSelect = d3.select("#h2h-metric-select")
               .attr("id", "h2h-metric-select")
 
@@ -261,13 +309,13 @@ class Head2Head{
             return metricSelect;
         }
 
-        function handleSelect(teamHandler, metricHandler, gameData){
+        function handleSelect(teamHandler, metricHandler){
             const selectedTeam = teamHandler.property('value');
             const selectedMetric = metricHandler.property('value');
             if(selectedTeam != "--Team--" && selectedMetric != "--Metric--"){
                 dropdownsActive = true;
                 // Now that both the options are selected, we can present our visualisation
-                createGradient(gameData, teamToID[selectedTeam], metricsDict[selectedMetric], circles);
+                createGradient(teamToID[selectedTeam], metricsDict[selectedMetric], circles);
             }
             else{
                 dropdownsActive = false;
@@ -316,22 +364,22 @@ class Head2Head{
                 d3.csv("team.csv"),
                 d3.csv("game.csv")
             ]).then(function(values) {
-                let teamData = values[0];
-                let gameData = values[1];
+                teamData = values[0];
+                gameData = values[1];
                 // create a dropdown menu to select a team
 
                 // Fill up teamToID dictionary 
                 teamData.forEach(element => teamToID[element.nickname] = element.id);
 
                 createCircles(svg, teamData, projection);
-                teamSelect = createTeamDD(svg, teamData, projection);
-                metricSelect = createMetricDD(svg, gameData, projection);
+                teamSelect = createTeamDD(svg, projection);
+                metricSelect = createMetricDD(svg, projection);
                 
                 teamSelect.on('change', function(){
-                    handleSelect(teamSelect, metricSelect, gameData, circles);
+                    handleSelect(teamSelect, metricSelect);
                 });
                 metricSelect.on('change', function(){
-                    handleSelect(teamSelect, metricSelect, gameData, circles);
+                    handleSelect(teamSelect, metricSelect);
                 });
                 
             });
