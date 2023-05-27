@@ -50,7 +50,7 @@ class Head2Head{
             const averagePointsAway = totalPointsAway / totalGames;
             const averageReboundsHome = totalReboundsHome / totalReboundsHomeCnt;
             const averageReboundsAway = totalReboundsAway / totalReboundsAwayCnt;
-            
+            console.log(averagePointsHome);
         }
 
         function mouseOver(event, d){
@@ -72,7 +72,6 @@ class Head2Head{
                 
             if(dropdownsActive){
                 const streak = d3.select(this).attr("streak");
-                console.log(streak);
                 var characterWidths = streak.split('').map(function(d) {
                     return d === 'W' ? 16 : 10; // since 'W' is wider than 'L'
                 });
@@ -319,7 +318,6 @@ class Head2Head{
             }
             else{
                 dropdownsActive = false;
-                console.log("Select Both Options");
                 // Reset, that is, Remove the visualisation (optional)
             }
         }
