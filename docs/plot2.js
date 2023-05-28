@@ -65,10 +65,19 @@ class Head2Head{
             // Clear existing data in the table
             tbody.innerHTML = "";
 
-            // Create table caption
-            var caption = document.createElement("caption");
-            caption.textContent = awayTeam + " @ " + homeTeam;
-            table.appendChild(caption);
+            var oldCaption = table.caption;
+            if(oldCaption === null){
+                // Create table caption
+                var caption = document.createElement("caption");
+                caption.textContent = awayTeam + " @ " + homeTeam;
+                table.appendChild(caption);
+            }
+            else{
+                // Create table caption
+                var newCaption = document.createElement("caption");
+                newCaption.textContent = awayTeam + " @ " + homeTeam;
+                table.replaceChild(newCaption, oldCaption);
+            }
           
             // Define the column names and data for the table
             var columns = ["Stats", homeTeam, awayTeam];
