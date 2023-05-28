@@ -20,7 +20,7 @@ class Head2Head{
             return d3.geoPath().projection(projection);
         }
 
-        function summary(games){
+        function summary(games, homeTeam, awayTeam){
             let totalGames = 0;
             let totalPointsHome = 0;
             let totalPointsAway = 0;
@@ -46,11 +46,79 @@ class Head2Head{
             });
               
             // Calculate average stats
-            const averagePointsHome = totalPointsHome / totalGames;
-            const averagePointsAway = totalPointsAway / totalGames;
-            const averageReboundsHome = totalReboundsHome / totalReboundsHomeCnt;
-            const averageReboundsAway = totalReboundsAway / totalReboundsAwayCnt;
-            console.log(averagePointsHome);
+            const PointsHome = totalPointsHome / totalGames;
+            const PointsAway = totalPointsAway / totalGames;
+            const Points = [PointsHome.toFixed(2), PointsAway.toFixed(2)];
+            const ReboundsHome = totalReboundsHome / totalReboundsHomeCnt;
+            const ReboundsAway = totalReboundsAway / totalReboundsAwayCnt;
+            const Rebounds = [ReboundsHome.toFixed(2), ReboundsAway.toFixed(2)];
+            createTable({Points, Rebounds}, "statsTable", homeTeam, awayTeam);
+            
+
+        }
+
+        function createTable(displayDict, tableName, homeTeam, awayTeam){
+            var table = document.getElementById(tableName);
+            table.style.display = "table";
+            var tbody = table.getElementsByTagName("tbody")[0];
+
+            // Clear existing data in the table
+            tbody.innerHTML = "";
+
+            // Create table caption
+            var caption = document.createElement("caption");
+            caption.textContent = awayTeam + " @ " + homeTeam;
+            table.appendChild(caption);
+          
+            // Define the column names and data for the table
+            var columns = ["Stats", homeTeam, awayTeam];
+            var data = [
+              ["Row 1, Cell 1", "Row 1, Cell 2"],
+              ["Row 2, Cell 1", "Row 2, Cell 2"]
+            ];
+
+            var keys = Object.keys(displayDict);
+
+            var data = [];
+            for(var i = 0; i < keys.length; i++){
+                var rowData = [];
+                for(var j = 0; j < columns.length; j++){
+                    if(j == 0)
+                        rowData.push(keys[i]);
+                    else
+                        rowData.push(displayDict[keys[i]][j-1]);
+                }
+                data.push(rowData);
+            }
+            
+            // Create table header row
+            var thead = table.getElementsByTagName("thead")[0];
+            var headerRow = document.createElement("tr");
+
+            
+            for (var i = 0; i < columns.length; i++) {
+                var th = document.createElement("th");
+                th.textContent = columns[i];
+                th.style.fontSize = "20px"; // make the column names bigger
+                headerRow.appendChild(th); // adds a node to the end of the list of children of the specified parent node
+            }
+
+            thead.innerHTML = "";
+            thead.appendChild(headerRow);
+
+            for (var i = 0; i < data.length; i++) {
+                var row = document.createElement("tr");
+            
+                for (var j = 0; j < data[i].length; j++) {
+                  var cell = document.createElement("td");
+                  cell.textContent = data[i][j];
+                  row.appendChild(cell);
+                }
+            
+                tbody.appendChild(row);
+              }
+
+            
         }
 
         function mouseOver(event, d){
@@ -112,8 +180,17 @@ class Head2Head{
             // Only triggers when both dropdowns are active
             const awayGames = gameData.filter((x) => x.team_id_away === curTeam && x.team_id_home === d.id);
             const reverseFixture = gameData.filter((x) => x.team_id_away === d.id && x.team_id_home === curTeam);
-            const awayDict = summary(awayGames);
-            const homeDict = summary(reverseFixture);
+            var homeTeam;
+            var awayTeam;
+            teamData.forEach(element => {
+                if (d.id === element.id) 
+                  homeTeam = element.nickname;
+                if (curTeam === element.id)
+                    awayTeam = element.nickname;
+              });
+            teamData.forEach(element => teamToID[element.nickname] = element.id);
+            const awayDict = summary(awayGames, homeTeam, awayTeam);
+            // const homeDict = summary(reverseFixture, awayTeam, homeTeam);
         }
 
         function mouseInteractions(){
