@@ -400,7 +400,7 @@ class Head2Head{
             if(selectedTeam != "--Team--" && selectedMetric != "--Metric--"){
                 dropdownsActive = true;
                 // Now that both the options are selected, we can present our visualisation
-                createGradient(teamToID[selectedTeam], metricsDict[selectedMetric], circles);
+                createGradient(teamToID[selectedTeam], metricsDict[selectedMetric]);
             }
             else{
                 dropdownsActive = false;
@@ -465,7 +465,6 @@ class Head2Head{
                 metricSelect.on('change', function(){
                     handleSelect(teamSelect, metricSelect);
                 });
-                
             });
         });
     }
