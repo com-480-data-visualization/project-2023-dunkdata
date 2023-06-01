@@ -141,7 +141,7 @@ class PlayerPerf{
                 return acc;
             }, {});
 
-            const playoffPlayers = new Set(yearData.filter(d => d.season_type == "PO").map(obj => obj.player_id));
+            const playoffPlayers = new Set(yearData.filter(d => d.season_type === "PO").map(obj => obj.player_id));
             
             const postSeasonPlayers = Object.values(aggregatedData)
                 .filter(d => playoffPlayers.has(d.player_id))
