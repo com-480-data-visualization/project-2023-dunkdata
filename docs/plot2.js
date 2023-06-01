@@ -3,6 +3,7 @@ class Head2Head{
         let circles;
         let teamData;
         let gameData;
+        let playoffData;
         let teamSelect;
         let metricSelect;
         let curTeam;
@@ -14,47 +15,79 @@ class Head2Head{
 		this.svg_height = svg_viewbox.height;
         
         let teamToID = {}; // dictionary converting team nickname to team_id
-        let metricsDict = {"FT%": "ft_pct", "FGM": "fgm", "FTM": "ftm", "FG3M": "fg3m", "FG3A": "fg3a", "FTA": "fta"}; // We have to append _home or _away to the obtain the column names in the dictionary
+
+        let metricsDict = {
+            "Points": "pts",
+            "FT%": "ft_pct",
+            "FGM": "fgm",
+            "FTM": "ftm",
+            "FG3M": "fg3m",
+            "FG3A": "fg3a",
+            "FTA": "fta",
+            "FGA": "fga",
+            "FG%": "fg_pct",
+            "FG3%": "fg3_pct",
+            "Rebounds": "reb",
+            "OREB": "oreb",
+            "DREB": "dreb",
+            "Assists": "ast",
+            "Steals": "stl",
+            "Blocks": "blk",
+            "Turnovers": "tov",
+            "Fouls": "pf",
+          };
+          
 
         function getGeoGenerator(projection) {
             return d3.geoPath().projection(projection);
         }
 
-        function summary(games, homeTeam, awayTeam){
+        function summary(games, homeTeam, awayTeam, away){
             let totalGames = 0;
-            let totalPointsHome = 0;
-            let totalPointsAway = 0;
-            let totalReboundsHome = 0;
-            let totalReboundsHomeCnt = 0;
-            let totalReboundsAway = 0;
-            let totalReboundsAwayCnt = 0;
+            const sumStatsHome = {};
+            const sumStatsAway = {};
+            const countStatsHome = {}; // since some of the values are null, we want to divide by the total number of non-null entries
+            const countStatsAway = {}; // since some of the values are null, we want to divide by the total number of non-null entries
+            const attributes = Object.values(metricsDict);
+            const attributesHome = Object.values(metricsDict).map(d => d + "_home");
+            const attributesAway = Object.values(metricsDict).map(d => d + "_away");
             games.forEach(game => {
-                const { pts_home, pts_away, reb_home, reb_away } = game;
-                totalGames++;
-                totalPointsHome += parseInt(pts_home, 10);
-                if(reb_home !== "") {
-                    totalReboundsHome += parseInt(reb_home, 10);
-                    totalReboundsHomeCnt++;
-                }
+                attributesHome.forEach(attribute => {
+                    if(!sumStatsHome[attribute]){
+                        sumStatsHome[attribute] = 0;
+                        countStatsHome[attribute] = 0;
+                    }
+                    if(game[attribute] !== null){
+                        sumStatsHome[attribute] += parseFloat(game[attribute]);
+                        countStatsHome[attribute]++;
+                    }
+                })
+                attributesAway.forEach(attribute => {
+                    if(!sumStatsAway[attribute]){
+                        sumStatsAway[attribute] = 0;
+                        countStatsAway[attribute] = 0;
+                    }
+                    if(game[attribute] !== null){
+                        sumStatsAway[attribute] += parseFloat(game[attribute]);
+                        countStatsAway[attribute]++;
+                    }
+                })
               
-                // Aggregate stats for away team
-                totalPointsAway += parseInt(pts_away, 10);
-                if(reb_away !== "") {
-                    totalReboundsAway += parseInt(reb_away, 10);
-                    totalReboundsAwayCnt++;
-                }
             });
               
             // Calculate average stats
-            const PointsHome = totalPointsHome / totalGames;
-            const PointsAway = totalPointsAway / totalGames;
-            const Points = [PointsHome.toFixed(2), PointsAway.toFixed(2)];
-            const ReboundsHome = totalReboundsHome / totalReboundsHomeCnt;
-            const ReboundsAway = totalReboundsAway / totalReboundsAwayCnt;
-            const Rebounds = [ReboundsHome.toFixed(2), ReboundsAway.toFixed(2)];
-            createTable({Points, Rebounds}, "statsTable", homeTeam, awayTeam);
-            
+            const averageStats = {};
 
+            attributes.forEach(attribute => {
+                averageStats[attribute] = [(sumStatsHome[attribute+"_home"] / countStatsHome[attribute+"_home"]).toFixed(2), (sumStatsAway[attribute+"_away"] / countStatsAway[attribute+"_away"]).toFixed(2)];
+            });
+
+            console.log(averageStats);
+
+            if(away)
+                createTable(averageStats, "statsTableAway", homeTeam, awayTeam);
+            else
+                createTable(averageStats, "statsTableHome", homeTeam, awayTeam);
         }
 
         function createTable(displayDict, tableName, homeTeam, awayTeam){
@@ -198,8 +231,8 @@ class Head2Head{
                     awayTeam = element.nickname;
               });
             teamData.forEach(element => teamToID[element.nickname] = element.id);
-            const awayDict = summary(awayGames, homeTeam, awayTeam);
-            // const homeDict = summary(reverseFixture, awayTeam, homeTeam);
+            const awayDict = summary(awayGames, homeTeam, awayTeam, true);
+            const homeDict = summary(reverseFixture, awayTeam, homeTeam, false);
         }
 
         function mouseInteractions(){
@@ -209,12 +242,19 @@ class Head2Head{
         }
 
         function createCircles(svg, data, projection) {
-
             circles = svg.selectAll("circle")
                 .data(data)
                 .join("circle")
                 .attr("id", d => d.id)
                 .attr("cx", function(d) {
+                    if(d.nickname == "Clippers"){
+                        d.longitude = String(parseFloat(d.longitude) + 1);
+                        return projection([d.longitude, d.latitude])[0];
+                    }
+                    if(d.nickname == "Nets"){
+                        d.longitude = String(parseFloat(d.longitude) + 1); // Brooklyn is slightly west of New York
+                        return projection([d.longitude, d.latitude])[0];
+                    }
                     return projection([d.longitude, d.latitude])[0];
                 })
                 .attr("cy", function(d) {
@@ -388,7 +428,7 @@ class Head2Head{
             const metricSelect = d3.select("#h2h-metric-select")
               .attr("id", "h2h-metric-select")
 
-            const metricOptions = ["FT%", "FGM", "FTM", "FG3M", "FG3A", "FTA"];
+            const metricOptions = Object.keys(metricsDict);
             const metricOptionsHeader = ["--Metric--", ...metricOptions];
             populateDropdown(metricSelect, metricOptionsHeader);
             return metricSelect;
@@ -446,11 +486,13 @@ class Head2Head{
                 * 3) Time Period [Optional]
                 */
                 d3.csv("team.csv"),
-                d3.csv("game.csv")
+                d3.csv("game.csv"),
+                d3.csv("games.csv")
             ]).then(function(values) {
                 teamData = values[0];
                 gameData = values[1];
-                // create a dropdown menu to select a team
+                playoffData = values[2];
+                playoffData = playoffData.filter(d => d.GAME_ID.charAt(0) === "4"); // games whose ids start with 4 are
 
                 // Fill up teamToID dictionary 
                 teamData.forEach(element => teamToID[element.nickname] = element.id);
