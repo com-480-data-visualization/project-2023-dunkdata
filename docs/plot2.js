@@ -88,6 +88,18 @@ class Head2Head{
                 createTable(averageStats, "statsTableHome", homeTeam, awayTeam);
         }
 
+        function fillSelectedTeam(logoElement, team){
+
+            // We fill it inside this container
+            const selectedTeamContainer = document.getElementById('selectedTeamContainer');
+            selectedTeamContainer.innerHTML = '';
+            const selectedTeamLogo = document.createElement('img');
+            selectedTeamLogo.src = logoElement.src;
+            selectedTeamLogo.alt = team.nickname;
+            // Create a copy for the team logo element to be put in the container
+            selectedTeamContainer.appendChild(selectedTeamLogo);
+        }
+
         function generateLogoGrid() {
             var logoGrid = document.getElementById('logoGrid');
           
@@ -102,8 +114,7 @@ class Head2Head{
             
                 // Add click event listener to the logo element
                 logoElement.addEventListener('click', function () {
-                // Handle the team selection here, e.g., display team information or perform an action
-                console.log('Selected team:', team.nickname);
+                    fillSelectedTeam(logoElement, team, logoGrid);
                 });
             
                 // Append the logo element to the logo grid container
