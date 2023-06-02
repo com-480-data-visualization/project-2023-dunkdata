@@ -12,6 +12,10 @@
       background-color: rgb(182, 105, 11);
       border: black;
     }
+
+    #h2hcontainer {
+      background-color: rgb(242, 215, 215);
+    }
     
     table {
       border-collapse: collapse;
@@ -28,10 +32,24 @@
     th {
       background-color: white;
     }
+
+    #logoGrid {
+      display: grid;
+      grid-template-columns: repeat(6);
+      grid-gap: 10px;
+    }
+
+    #logoGrid img {
+      width: 100; 
+      height: 100px; 
+      cursor: pointer; /* Show a pointer cursor when hovering over the logos */
+    }
   </style>
 </head>
 <body>
   <p>This visualization (sketch) shows both head-to-head and home vs away performance for a given team.</p>
+  
+  <div id="logoGrid"></div>
   
   <div id="h2hcontainer">
     <select id="h2h-team-select" style="width: 200px; float: left;"></select>

@@ -88,6 +88,29 @@ class Head2Head{
                 createTable(averageStats, "statsTableHome", homeTeam, awayTeam);
         }
 
+        function generateLogoGrid() {
+            var logoGrid = document.getElementById('logoGrid');
+          
+            // Clear the existing content in the logo grid
+            logoGrid.innerHTML = '';
+          
+            // Loop through the teams array and create logo elements
+            teamData.forEach(function (team) {
+                var logoElement = document.createElement('img');
+                logoElement.src = "logos/" + team.abbreviation + "_2023.png";
+                logoElement.alt = team.nickname;
+            
+                // Add click event listener to the logo element
+                logoElement.addEventListener('click', function () {
+                // Handle the team selection here, e.g., display team information or perform an action
+                console.log('Selected team:', team.nickname);
+                });
+            
+                // Append the logo element to the logo grid container
+              logoGrid.appendChild(logoElement);
+            });
+          }
+
         function createTable(displayDict, tableName, homeTeam, awayTeam){
             var table = document.getElementById(tableName);
             table.style.display = "table";
@@ -177,9 +200,10 @@ class Head2Head{
             let projected = projection([d.longitude, d.latitude]);
             svg.append("text")
                 .attr("id", "tooltip")
+                .attr("font", 10)
                 .attr("x", projected[0] + 10)
                 .attr("y", projected[1] + 10)
-                .text(d.nickname);
+                .text(d.nickname + "(" + d.city + ")");
 
             svg.append("image")
                 .attr("xlink:href", "logos/" + d.abbreviation + "_2023.png") // Set the path to your logo image file
@@ -276,10 +300,10 @@ class Head2Head{
                 .style("stroke-width", 0.25)
                 .style("opacity", 0.75);
 
-            circles.append("title")
-                .text(function(d) {
-                    return d.nickname + " (" + d.city+ ")";
-                });
+            // circles.append("title")
+            //     .text(function(d) {
+            //         return d.nickname + " (" + d.city+ ")";
+            //     });
 
             mouseInteractions();
         }
@@ -510,6 +534,7 @@ class Head2Head{
                 createCircles(svg, teamData, projection);
                 teamSelect = createTeamDD(svg, projection);
                 metricSelect = createMetricDD(svg, projection);
+                generateLogoGrid();
                 
                 teamSelect.on('change', function(){
                     handleSelect(teamSelect, metricSelect);
