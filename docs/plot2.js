@@ -180,14 +180,13 @@ class Head2Head{
                 .attr("x", projected[0] + 10)
                 .attr("y", projected[1] + 10)
                 .text(d.nickname);
-            console.log(window.location.href);
 
             svg.append("image")
-                .attr("xlink:href", "docs/logos/HOU_2023.png") // Set the path to your logo image file
-                .attr("x", 10) // Set the x-coordinate of the image position
-                .attr("y", 10) // Set the y-coordinate of the image position
-                .attr("width", 100) // Set the width of the image
-                .attr("height", 100); // Set the height of the image
+                .attr("xlink:href", "logos/" + d.abbreviation + "_2023.png") // Set the path to your logo image file
+                .attr("x", projected[0] + d.nickname.length*2.7) // Set the x-coordinate of the image position based on the length of the nickname
+                .attr("y", projected[1] - 60) // Set the y-coordinate of the image position
+                .attr("width", 50) // Set the width of the image
+                .attr("height", 50); // Set the height of the image
              
                 
             if(dropdownsActive){
@@ -224,6 +223,7 @@ class Head2Head{
                 .style("fill", originalColour);
             svg.select("#tooltip").remove();
             d3.selectAll('text#tooltip').remove();
+            d3.selectAll('image').remove();
         }
 
         function mouseClick(event, d){
