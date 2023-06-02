@@ -167,8 +167,6 @@ class PlayerPerf{
                   return acc;
             }, {});
             fillPlot(playoffData);
-
-            console.log(playoffData);
         }
 
         function populateDropdown(selectElement, options) {
