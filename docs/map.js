@@ -191,6 +191,15 @@ class NBAMap {
         ];
 
         populateDropdown(teamSelect, sortedTeamNames);
+
+        const selectedTeam = teamSelect.property("value");
+        teamSelect.property(
+          "value",
+          sortedTeamNames.includes(selectedTeam)
+            ? selectedTeam
+            : sortedTeamNames[0]
+        );
+        teamSelect.dispatch("change");
       }
 
       function generateSeasons(startYear, endYear) {
@@ -237,7 +246,8 @@ class NBAMap {
 
         journeyPaths.style("stroke-width", (d, i) => {
           const playerName = d.properties.player;
-          return playerName === selectedPlayer ? 3 : 0.5;
+          if (selectedPlayer === "--Player--") return 0.5;
+          return playerName === selectedPlayer ? 3 : 0;
         });
       }
 
@@ -317,7 +327,14 @@ class NBAMap {
             svg
               .selectAll(".journey-path")
               .filter(function (pathData) {
-                return pathData.properties.player === playerName;
+                let shouldRender;
+                // return False if the path is the one corresponding to the currently selected player in the dropdown
+                if (pathData.properties.player === playerName) {
+                  shouldRender = true;
+                } else {
+                  shouldRender = false;
+                }
+                return shouldRender;
               })
               .transition()
               .duration(50)
@@ -337,11 +354,20 @@ class NBAMap {
             svg
               .selectAll(".journey-path")
               .filter(function (pathData) {
-                return pathData.properties.player === playerName;
+                let shouldReset;
+                if (
+                  pathData.properties.player === playerName &&
+                  pathData.properties.player !== playerSelect.property("value")
+                ) {
+                  shouldReset = true;
+                } else {
+                  shouldReset = false;
+                }
+                return shouldReset;
               })
               .transition()
               .duration(50)
-              .style("stroke-width", "0.7px");
+              .style("stroke-width", "0.5px");
             svg.select("#tooltip").remove();
           });
       }
