@@ -162,8 +162,11 @@ class Head2Head{
         }
 
         function mouseOver(event, d){
+
+            // Get previous values to restore for mouseOut
             const prevR = d3.select(this).attr("r");
             const prevColour = d3.select(this).style("fill");
+
             d3.select(this)
                 .transition()
                 .duration(200)
@@ -177,6 +180,15 @@ class Head2Head{
                 .attr("x", projected[0] + 10)
                 .attr("y", projected[1] + 10)
                 .text(d.nickname);
+            console.log(window.location.href);
+
+            svg.append("image")
+                .attr("xlink:href", "docs/logos/HOU_2023.png") // Set the path to your logo image file
+                .attr("x", 10) // Set the x-coordinate of the image position
+                .attr("y", 10) // Set the y-coordinate of the image position
+                .attr("width", 100) // Set the width of the image
+                .attr("height", 100); // Set the height of the image
+             
                 
             if(dropdownsActive){
                 const streak = d3.select(this).attr("streak");
