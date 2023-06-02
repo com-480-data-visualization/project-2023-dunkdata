@@ -82,8 +82,6 @@ class Head2Head{
                 averageStats[attribute] = [(sumStatsHome[attribute+"_home"] / countStatsHome[attribute+"_home"]).toFixed(2), (sumStatsAway[attribute+"_away"] / countStatsAway[attribute+"_away"]).toFixed(2)];
             });
 
-            console.log(averageStats);
-
             if(away)
                 createTable(averageStats, "statsTableAway", homeTeam, awayTeam);
             else
@@ -231,8 +229,8 @@ class Head2Head{
                     awayTeam = element.nickname;
               });
             teamData.forEach(element => teamToID[element.nickname] = element.id);
-            const awayDict = summary(awayGames, homeTeam, awayTeam, true);
-            const homeDict = summary(reverseFixture, awayTeam, homeTeam, false);
+            summary(awayGames, homeTeam, awayTeam, true);
+            summary(reverseFixture, awayTeam, homeTeam, false);
         }
 
         function mouseInteractions(){
