@@ -82,10 +82,32 @@ class PlayerPerf{
             .on("click", mouseClick);
         }
 
+        function generateRandomColor() {
+            var r = Math.floor(Math.random() * 256);
+            var g = Math.floor(Math.random() * 256);
+            var b = Math.floor(Math.random() * 256);
+            
+            return "rgb(" + r + ", " + g + ", " + b + ")";
+          }
+
         function generateColorScale(domainValues) {
-            var colorScale = d3.scaleOrdinal()
-                .domain(domainValues)
-                .range(d3.quantize(d3.interpolateRainbow, domainValues.length));
+            let colorScale;
+            var colors = [];
+  
+            // Generate n distinct colors
+            for (var i = 0; i < domainValues.length; i++) {
+                var color = generateRandomColor();
+                
+                // Check if the color is already in the array
+                while (colors.includes(color)) {
+                color = generateRandomColor();
+                }
+                
+                colors.push(color);
+            }
+            colorScale = d3.scaleOrdinal()
+            .domain(domainValues)
+            .range(colors);
             
             return colorScale;
         }
@@ -108,7 +130,17 @@ class PlayerPerf{
           // Add text labels to legend items
           legendItems.append("div")
             .text(function(d) { return d; });
-              console.log(legendItems);
+
+            d3.selectAll('.legend-item')
+            .on('click', function() {
+                var clickedElem = d3.select(this).select('.legend-color');
+                var clickedColor = clickedElem.style('background-color');
+                // Filter the circles based on the clicked color
+                circles.style('display', function() {
+                    var circleColor = d3.select(this).attr('fill');
+                    return circleColor === clickedColor ? 'block' : 'none';
+                  });
+                });
         }
 
         function handlePosition(){
@@ -118,13 +150,11 @@ class PlayerPerf{
                     positions.add(element.position);
             });
             const colorScale = generateColorScale(Array.from(positions));
-            circles.style("fill", function(d) { 
+            circles.attr("fill", function(d) { 
                 return colorScale(d.matchedItem.position); 
             });
 
             createLegend(positions, colorScale);
-
-            
     }
 
         function handleCategories(){
