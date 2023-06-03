@@ -136,7 +136,7 @@ class NBAMap {
       "change",
       self.createSeasonSelectHandlerDD(self, journeyData, teamSelect)
     );
-    const seasons = ["--Season--", ...self.generateSeasons(1977, 2023)];
+    const seasons = ["--Season--", ...self.generateSeasons(2002, 2023)];
     self.populateDropdown(seasonSelect, seasons);
 
     teamSelect.on(
