@@ -11,6 +11,7 @@ class PlayerPerf{
         let xScale;
         let yScale;
         let colorScale;
+        let playerName;
         let curTeam;
         let dropdownsActive = false;
 
@@ -53,7 +54,6 @@ class PlayerPerf{
 
             const prevR = d3.select(this).attr("r");
             const prevColour = d3.select(this).style("fill");
-            console.log(prevColour);
             
             d3.select(this)
             .transition()
@@ -64,15 +64,18 @@ class PlayerPerf{
             .style("fill", "orange"); 
             
         
-          // Display the name
-          svg.append("text")
-            .attr("id", "nameLabel")
-            .attr("cx", 100)
-            .attr("cy", 100)
-            .text(d.player_name)
-            .attr("font-size", "12px")
-            .attr("font-weight", "bold")
-            .attr("fill", "red");
+        // Display the name
+        var playerContainer = d3.select("#player-container");
+
+        // Append a new div for the player name
+        
+        playerName = playerContainer
+        .selectAll('span')
+        .data([d.player_name])
+        .enter()
+        .append('span')
+        .text(d => d);
+
         }
 
         function mouseOut(event, d){
@@ -85,7 +88,7 @@ class PlayerPerf{
             .attr("r", originalSize); // Restore the original circle size
 
             // Remove the name label
-            svg.select("#nameLabel").remove();
+            playerName.remove();
         }
 
         function mouseClick(event, d){
@@ -193,7 +196,6 @@ class PlayerPerf{
             if(changeScale){
                 colorScale = generateColorScale(sortedHeights);
             }
-            console.log(colorScale);
             circles.attr("fill", function(d) { 
                 return colorScale(d.matchedItem.height); 
             });
