@@ -17,9 +17,9 @@ class PlayerPerf{
 
         // dimensions
         const margin = { top: 0, right: 0, bottom: 0, left: 0 };
-        const width = 600 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
-        
+        const width = 800 - margin.left - margin.right;
+        const height = 600 - margin.top - margin.bottom;
+
         this.svg = d3.select('#' + svg_id)
         .append('svg')
         .attr('width', width + margin.left + margin.right)
@@ -28,7 +28,7 @@ class PlayerPerf{
         .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
 		//Get the svg dimensions
-        
+
         let teamToID = {}; // dictionary converting team nickname to team_id
         const metricsDict = {
             "Box Offense": "raptor_box_offense",
@@ -54,21 +54,21 @@ class PlayerPerf{
 
             const prevR = d3.select(this).attr("r");
             const prevColour = d3.select(this).style("fill");
-            
+
             d3.select(this)
             .transition()
             .duration(200)
             .attr("original-size", prevR)
             .attr("r", 6) // Enlarge the circle slightly
             .attr("original-colour", prevColour)
-            .style("fill", "orange"); 
-            
-        
+            .style("fill", "orange");
+
+
         // Display the name
         var playerContainer = d3.select("#player-container");
 
         // Append a new div for the player name
-        
+
         playerName = playerContainer
         .selectAll('span')
         .data([d.player_name])
@@ -115,51 +115,51 @@ class PlayerPerf{
             var r = Math.floor(Math.random() * 256);
             var g = Math.floor(Math.random() * 256);
             var b = Math.floor(Math.random() * 256);
-            
+
             return "rgb(" + r + ", " + g + ", " + b + ")";
           }
 
         function generateColorScale(domainValues) {
             let genColorScale;
             var colors = [];
-  
+
             // Generate n distinct colors
             for (var i = 0; i < domainValues.length; i++) {
                 var color = generateRandomColor();
-                
+
                 // Check if the color is already in the array
                 while (colors.includes(color)) {
                 color = generateRandomColor();
                 }
-                
+
                 colors.push(color);
             }
-            
+
             genColorScale = d3.scaleOrdinal()
             .domain(domainValues)
             .range(colors);
-            
+
             return genColorScale;
         }
 
         function createLegend(legendArray){
             var legendContainer = d3.select("#legend-container");
             legendContainer.selectAll('*').remove();
-      
+
             // Create legend items
             var legendItems = legendContainer.selectAll(".legend-item")
                 .data(legendArray)
                 .enter()
                 .append("div")
                 .attr("class", "legend-item");
-        
+
             // Add color squares to legend items
             legendItems.append("div")
                 .attr("class", "legend-color")
-                .style("background-color", function(d) { 
-                    return colorScale(d); 
+                .style("background-color", function(d) {
+                    return colorScale(d);
                 });
-        
+
             // Add text labels to legend items
             legendItems.append("div")
                 .style("font-size", "14px")
@@ -182,10 +182,10 @@ class PlayerPerf{
 
             var birthDateObj = new Date(birthdate);
             var currentDateObj = new Date(currentDate);
-          
+
             // difference in years between the dates
             var age = currentDateObj.getFullYear() - birthDateObj.getFullYear();
-          
+
             // if the current date is before the birthdate in the same year
             if (
               currentDateObj.getMonth() < birthDateObj.getMonth() ||
@@ -194,7 +194,7 @@ class PlayerPerf{
             ) {
               age--;
             }
-          
+
             return age;
           }
 
@@ -210,8 +210,8 @@ class PlayerPerf{
             sortedAges.sort();
             if(changeScale)
                 colorScale = generateColorScale(sortedAges);
-            circles.attr("fill", function(d) { 
-                return colorScale(calculateAge(d.matchedItem.birthdate, curDate)); 
+            circles.attr("fill", function(d) {
+                return colorScale(calculateAge(d.matchedItem.birthdate, curDate));
             });
             createLegend(sortedAges);
         }
@@ -226,8 +226,8 @@ class PlayerPerf{
             sortedTeams.sort();
             if(changeScale)
                 colorScale = generateColorScale(sortedTeams);
-            circles.attr("fill", function(d) { 
-                return colorScale(d.team); 
+            circles.attr("fill", function(d) {
+                return colorScale(d.team);
             });
             createLegend(sortedTeams);
         }
@@ -242,7 +242,7 @@ class PlayerPerf{
             sortedHeights.sort(function(a, b) {
                 var heightA = a.split("-").map(Number);
                 var heightB = b.split("-").map(Number);
-                
+
                 if (heightA[0] === heightB[0]) // if they are the same number of feet, compare inches
                   return heightA[1] - heightB[1];
                 else
@@ -251,8 +251,8 @@ class PlayerPerf{
             if(changeScale){
                 colorScale = generateColorScale(sortedHeights);
             }
-            circles.attr("fill", function(d) { 
-                return colorScale(d.matchedItem.height); 
+            circles.attr("fill", function(d) {
+                return colorScale(d.matchedItem.height);
             });
 
             createLegend(sortedHeights);
@@ -266,14 +266,14 @@ class PlayerPerf{
             });
             if(changeScale)
                 colorScale = generateColorScale(Array.from(positions));
-            circles.attr("fill", function(d) { 
-                return colorScale(d.matchedItem.position); 
+            circles.attr("fill", function(d) {
+                return colorScale(d.matchedItem.position);
             });
 
             createLegend(positions, colorScale);
     }
 
-        
+
 
         function createCategoryDD(){
             catSelect = d3.select("#category")
@@ -304,7 +304,7 @@ class PlayerPerf{
             yScale = d3.scaleLinear()
                 .domain([-maxExtent, maxExtent])
                 .range([margin.top + height, margin.top]);
-                
+
             const xAxis = d3.axisBottom(xScale).ticks(5).tickFormat(d3.format("+"));
             const yAxis = d3.axisLeft(yScale).ticks(5).tickFormat(d3.format("+"));
 
@@ -324,13 +324,30 @@ class PlayerPerf{
                 .attr("transform", `translate(10, ${margin.top + height / 2 + 10})`)
                 .attr("class", "x-axis")
                 .call(xAxis);
-            
+
             svg
                 .append("g")
                 .attr("transform", `translate(${margin.left + width / 2 + 10}, 10)`)
                 .attr("class", "y-axis")
                 .call(yAxis);
-            
+
+                // Add x-axis title
+            svg.append("text")
+                .attr("class", "axis-title")
+                .attr("x", width / 2)
+                .attr("y", height + margin.top + margin.bottom - 5)
+                .style("text-anchor", "middle")
+                .text(metricSelect.property('value'));
+
+            // Add y-axis title
+            svg.append("text")
+                .attr("class", "axis-title")
+                .attr("transform", "rotate(-90)")
+                .attr("x", -height / 2)
+                .attr("y", -margin.left + 15)
+                .style("text-anchor", "middle")
+                .text("(Playoff - Regular) Season " + metricSelect.property('value'));
+
             mouseInteractions();
         }
 
@@ -348,7 +365,7 @@ class PlayerPerf{
             }, {});
 
             const playoffPlayers = new Set(yearData.filter(d => d.season_type === "PO").map(obj => obj.player_id));
-            
+
             const postSeasonPlayers = Object.values(aggregatedData)
                 .filter(d => playoffPlayers.has(d.player_id))
                 .map(entry => ({
@@ -436,7 +453,7 @@ class PlayerPerf{
                     "Total",
                     "Pace Impact"
                 ];
-            
+
             const metricOptionsHeader = ["--Metric--", ...metricOptions];
             populateDropdown(metricSelect, metricOptionsHeader);
             return metricSelect;
@@ -445,7 +462,7 @@ class PlayerPerf{
         function handleSelect(metChange, catChange){
             const selectedYear = yearSelect.property('value');
             const selectedMetric = metricSelect.property('value');
-            
+
             if(catSelect == null){
                 if(selectedYear != "--Year--" && selectedMetric != "--Metric--"){
                     dropdownsActive = true;
@@ -484,7 +501,7 @@ class PlayerPerf{
                     createScatter(metricsDict[selectedMetric], yearsDict[selectedYear]);
                 }
             }
-            
+
         }
         let svg = this.svg;
 
@@ -507,10 +524,10 @@ class PlayerPerf{
             metricSelect.on('change', function(){
                 handleSelect(true, false);
             });
-            
+
 
         });
-           
+
     }
 
     createProjection() {

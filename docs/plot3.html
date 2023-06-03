@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-        
-        <title>Scatter Plot</title>
+
+    <title>Scatter Plot</title>
     <style>
         #fullPlot {
             width: 90%;
@@ -23,9 +23,9 @@
         }
 
         #scatterPlot {
-            width: 600px;
-            height: 400px;
-            border: 1px solid #ccc;
+            width: 800px;
+            height: 600px;
+            /* border: 0px solid #ccc; */
             margin-right: 50px;
             margin-left: 25px;
             position: relative;
@@ -60,15 +60,25 @@
     </style>
 </head>
 <body>
+
+  <p>This visualisation shows the differences in player performance across regular season and playoffs.</p>
+
+  <div id=rs-v-po-container>
+
     <div id="perfcontainer">
-    <select id="perf-metric-select" style="width: 200px; float: left;"></select>
-    <select id="perf-year-select" style="width: 200px; float: left;"></select>
-    <select id="category"></select>
+      <select id="perf-metric-select" style="width: 300px; float: left"></select>
+      <select id="perf-year-select" style="width: 200px; float: left;  margin-left: 50px"></select>
+      <select id="category"></select>
     </div>
+    <br>
+
     <div id="fullPlot">
-        <div id="player-container"></div>
-        <div id="scatterPlot"></div>
-        <div id="legend-container"></div>
+      <div id="player-container"></div>
+      <div id="scatterPlot"></div>
+      <div id="legend-container"></div>
     </div>
+
+  </div>
+
 </body>
 </html>
