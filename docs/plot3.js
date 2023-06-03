@@ -314,8 +314,8 @@ class PlayerPerf{
 
             createCategoryDD();
 
-            const xExtent = d3.extent(playoffArray, d => d.stat);
-            const yExtent = d3.extent(playoffArray, d => d.statDiff);
+            const xExtent = d3.extent(playoffArray, d => d.rs_stat);
+            const yExtent = d3.extent(playoffArray, d => d.po_stat);
             const maxExtent = Math.max(Math.abs(xExtent[0]), Math.abs(xExtent[1]), Math.abs(yExtent[0]), Math.abs(yExtent[1]));
 
             xScale = d3.scaleLinear()
@@ -335,8 +335,8 @@ class PlayerPerf{
                 .enter()
                 .append("circle")
                 .attr("name", d => d.player_name)
-                .attr("cx", d => xScale(d.stat))
-                .attr("cy", d => yScale(d.statDiff))
+                .attr("cx", d => xScale(d.rs_stat))
+                .attr("cy", d => yScale(d.po_stat))
                 .attr("r", 4)
                 .attr("fill", "steelblue");
 
@@ -358,7 +358,7 @@ class PlayerPerf{
                 .attr("x", width / 2)
                 .attr("y", height + margin.top + margin.bottom - 5)
                 .style("text-anchor", "middle")
-                .text(metricSelect.property('value'));
+                .text("Regular Season " + metricSelect.property('value'));
 
             // Add y-axis title
             svg.append("text")
@@ -367,7 +367,7 @@ class PlayerPerf{
                 .attr("x", -height / 2)
                 .attr("y", -margin.left + 15)
                 .style("text-anchor", "middle")
-                .text("(Playoff - Regular) Season " + metricSelect.property('value'));
+                .text("Playoff " + metricSelect.property('value'));
 
             mouseInteractions();
         }
@@ -402,15 +402,16 @@ class PlayerPerf{
             playoffData = postSeasonPlayers.reduce((acc, entry) => {
                 const key = entry.player_id;
                 if (!acc[key]) {
-                    acc[key] = { player_name: entry.player_name, player_id: entry.player_id, team: entry.team, stat: 0, statDiff: 0};
+                    acc[key] = { player_name: entry.player_name, player_id: entry.player_id, team: entry.team, po_stat: 0, rs_stat: 0, diff_stat: 0};
                   }
                 if(entry.season_type == "PO"){
-                    acc[key].stat += entry.stat; // storing the weighted sum here
-                    acc[key].statDiff += entry.stat;
+                    acc[key].po_stat += entry.stat; // storing the playoff stat
+                    acc[key].diff_stat += entry.stat;
                     acc[key].team = entry.team; // just to ensure the final team selected for a player is the PO team
                 }
                 else
-                    acc[key].statDiff -= entry.stat;
+                    acc[key].rs_stat -= entry.stat // storing the rs_stat
+                    acc[key].diff_stat -= entry.stat;
 
                   return acc;
             }, {});
