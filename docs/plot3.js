@@ -171,11 +171,28 @@ class PlayerPerf{
                 .on('click', function() {
                     var clickedElem = d3.select(this).select('.legend-color');
                     var clickedColor = clickedElem.style('background-color');
+
+                    // Check if the clicked item is already selected
+                    var isSelected = clickedElem.classed('selected');
+
+                    // Remove the "selected" class from all legend items
+                    d3.selectAll('.legend-item .legend-color').classed('selected', false);
+
+                    // Toggle the selected class on the clicked item
+                    clickedElem.classed('selected', !isSelected);
+
                     // Filter the circles based on the clicked color
-                    circles.style('display', function() {
+                    if (isSelected) {
+                      // Show all groups if the item was previously selected
+                      circles.style('display', 'block');
+                    } else {
+                      // Otherwise, show only the selected group
+                      circles.style('display', function() {
                         var circleColor = d3.select(this).attr('fill');
                         return circleColor === clickedColor ? 'block' : 'none';
-                    });
+                      });
+                    }
+
                 });
         }
 
