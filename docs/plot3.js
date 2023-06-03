@@ -3,6 +3,7 @@ class PlayerPerf{
         let circles;
         let combinedData;
         let playerData;
+        let playoffData;
         let yearSelect;
         let metricSelect;
         let catSelect;
@@ -116,6 +117,7 @@ class PlayerPerf{
                 
                 colors.push(color);
             }
+            
             genColorScale = d3.scaleOrdinal()
             .domain(domainValues)
             .range(colors);
@@ -137,11 +139,14 @@ class PlayerPerf{
             // Add color squares to legend items
             legendItems.append("div")
                 .attr("class", "legend-color")
-                .style("background-color", function(d) { return colorScale(d); });
+                .style("background-color", function(d) { 
+                    return colorScale(d); 
+                });
         
             // Add text labels to legend items
             legendItems.append("div")
                 .text(function(d) { return d; });
+
 
             d3.selectAll('.legend-item')
                 .on('click', function() {
@@ -152,8 +157,35 @@ class PlayerPerf{
                         var circleColor = d3.select(this).attr('fill');
                         return circleColor === clickedColor ? 'block' : 'none';
                     });
-                    });
+                });
             }
+
+        function handleHeight(changeScale){
+            var heights = new Set();
+            Object.values(playoffData).forEach(element => {
+                if(element.matchedItem.height)
+                    heights.add(element.matchedItem.height);
+            });
+            let sortedHeights = Array.from(heights);
+            sortedHeights.sort(function(a, b) {
+                var heightA = a.split("-").map(Number);
+                var heightB = b.split("-").map(Number);
+                
+                if (heightA[0] === heightB[0]) // if they are the same number of feet, compare inches
+                  return heightA[1] - heightB[1];
+                else
+                  return heightA[0] - heightB[0];
+            });
+            if(changeScale){
+                colorScale = generateColorScale(sortedHeights);
+            }
+            console.log(colorScale);
+            circles.attr("fill", function(d) { 
+                return colorScale(d.matchedItem.height); 
+            });
+
+            createLegend(sortedHeights);
+        }
 
         function handlePosition(changeScale){
             var positions = new Set();
@@ -179,14 +211,11 @@ class PlayerPerf{
             const categories = ["--Category--", "Position", "Height", "Team", "Country", "Age"];
             populateDropdown(catSelect, categories);
             catSelect.on('change', function(){
-                handleSelect(true);
+                handleSelect(false, true);
             })
         }
 
-        function fillPlot(playoffData){
-            // svg.selectAll("circle").remove();
-            // svg.selectAll(".x-axis").remove();
-            // svg.selectAll(".y-axis").remove();
+        function fillPlot(){
 
             const playoffArray = Object.values(playoffData);
 
@@ -258,7 +287,7 @@ class PlayerPerf{
                     stat: entry.stat / entry.totalPossessions
             }));
 
-            const playoffData = postSeasonPlayers.reduce((acc, entry) => {
+            playoffData = postSeasonPlayers.reduce((acc, entry) => {
                 const key = entry.player_id;
                 if (!acc[key]) {
                     acc[key] = { player_name: entry.player_name, player_id: entry.player_id, team: entry.team, stat: 0, statDiff: 0};
@@ -280,7 +309,7 @@ class PlayerPerf{
                 });
                 playerStats.matchedItem = matchingItem;
             }
-            fillPlot(playoffData);
+            fillPlot();
         }
 
         function populateDropdown(selectElement, options) {
@@ -341,7 +370,7 @@ class PlayerPerf{
             return metricSelect;
         }
 
-        function handleSelect(catChange){
+        function handleSelect(metChange, catChange){
             const selectedYear = yearSelect.property('value');
             const selectedMetric = metricSelect.property('value');
             
@@ -367,7 +396,8 @@ class PlayerPerf{
                     createScatter(metricsDict[selectedMetric], yearsDict[selectedYear]);
                     if(category == "Position")
                         handlePosition(catChange);
-                    
+                    if(category == "Height")
+                        handleHeight(!metChange);
                 }
                 else{
                     dropdownsActive = false;
@@ -395,10 +425,10 @@ class PlayerPerf{
             metricSelect = createMetricDD();
 
             yearSelect.on('change', function(){
-                handleSelect(false);
+                handleSelect(false, false);
             });
             metricSelect.on('change', function(){
-                handleSelect(false);
+                handleSelect(true, false);
             });
             
 
