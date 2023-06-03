@@ -2,8 +2,10 @@ class PlayerPerf{
     constructor(svg_id, div_id) {
         let circles;
         let combinedData;
+        let playerData;
         let yearSelect;
         let metricSelect;
+        let catSelect;
         let yearsDict;
         let xScale;
         let yScale;
@@ -11,7 +13,7 @@ class PlayerPerf{
         let dropdownsActive = false;
 
         // dimensions
-        const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+        const margin = { top: 0, right: 0, bottom: 0, left: 0 };
         const width = 600 - margin.left - margin.right;
         const height = 400 - margin.top - margin.bottom;
         
@@ -80,12 +82,76 @@ class PlayerPerf{
             .on("click", mouseClick);
         }
 
+        function generateColorScale(domainValues) {
+            var colorScale = d3.scaleOrdinal()
+                .domain(domainValues)
+                .range(d3.quantize(d3.interpolateRainbow, domainValues.length));
+            
+            return colorScale;
+        }
+
+        function createLegend(legendArray, colorScale){
+            var legendContainer = d3.select("#legend-container")
+      
+          // Create legend items
+          var legendItems = legendContainer.selectAll(".legend-item")
+            .data(legendArray)
+            .enter()
+            .append("div")
+            .attr("class", "legend-item");
+      
+          // Add color squares to legend items
+          legendItems.append("div")
+            .attr("class", "legend-color")
+            .style("background-color", function(d) { return colorScale(d); });
+      
+          // Add text labels to legend items
+          legendItems.append("div")
+            .text(function(d) { return d; });
+              console.log(legendItems);
+        }
+
+        function handlePosition(){
+            var positions = new Set();
+            playerData.forEach(element => {
+                if(element.position)
+                    positions.add(element.position);
+            });
+            const colorScale = generateColorScale(Array.from(positions));
+            circles.style("fill", function(d) { 
+                return colorScale(d.matchedItem.position); 
+            });
+
+            createLegend(positions, colorScale);
+
+            
+    }
+
+        function handleCategories(){
+            const category = catSelect.property('value');
+            if(category === "Position")
+                handlePosition();
+        }
+
+        function createCategoryDD(){
+            catSelect = d3.select("#category")
+                .attr("id", "category");
+            catSelect.style("display", "block");
+            const categories = ["--Category--", "Position", "Height", "Team", "Country", "Age"];
+            populateDropdown(catSelect, categories);
+            catSelect.on('change', function(){
+                handleCategories();
+            })
+        }
+
         function fillPlot(playoffData){
             svg.selectAll("circle").remove();
             svg.selectAll(".x-axis").remove();
             svg.selectAll(".y-axis").remove();
 
             const playoffArray = Object.values(playoffData);
+
+            createCategoryDD();
 
             const xExtent = d3.extent(playoffArray, d => d.stat);
             const yExtent = d3.extent(playoffArray, d => d.statDiff);
@@ -99,8 +165,8 @@ class PlayerPerf{
                 .domain([-maxExtent, maxExtent])
                 .range([margin.top + height, margin.top]);
                 
-                const xAxis = d3.axisBottom(xScale).ticks(5).tickFormat(d3.format("+"));
-                const yAxis = d3.axisLeft(yScale).ticks(5).tickFormat(d3.format("+"));
+            const xAxis = d3.axisBottom(xScale).ticks(5).tickFormat(d3.format("+"));
+            const yAxis = d3.axisLeft(yScale).ticks(5).tickFormat(d3.format("+"));
 
             circles = svg
                 .selectAll("circle")
@@ -134,7 +200,7 @@ class PlayerPerf{
                 // group by player_id and season_type (combine stats for players who have played for different teams)
                 const key = `${entry.player_id}-${entry.season_type}`;
                 if (!acc[key]) {
-                  acc[key] = { player_name: entry.player_name, player_id: entry.player_id, season_type: entry.season_type, stat: 0, totalPossessions: 0 };
+                  acc[key] = { player_name: entry.player_name, player_id: entry.player_id, team: entry.team, season_type: entry.season_type, stat: 0, totalPossessions: 0 };
                 }
                 acc[key].stat += entry[metric] * entry.poss; // storing the weighted sum here
                 acc[key].totalPossessions += entry.poss; // total possessions to be used to divide later on
@@ -148,24 +214,33 @@ class PlayerPerf{
                 .map(entry => ({
                     player_name: entry.player_name,
                     player_id: entry.player_id,
+                    team: entry.team,
                     season_type: entry.season_type,
-                    stat: entry.stat / entry.totalPossessions,
+                    stat: entry.stat / entry.totalPossessions
             }));
 
             const playoffData = postSeasonPlayers.reduce((acc, entry) => {
                 const key = entry.player_id;
                 if (!acc[key]) {
-                    acc[key] = { player_name: entry.player_name, player_id: entry.player_id, stat: 0, statDiff: 0};
+                    acc[key] = { player_name: entry.player_name, player_id: entry.player_id, team: entry.team, stat: 0, statDiff: 0};
                   }
                 if(entry.season_type == "PO"){
                     acc[key].stat += entry.stat; // storing the weighted sum here
                     acc[key].statDiff += entry.stat;
+                    acc[key].team = entry.team; // just to ensure the final team selected for a player is the PO team
                 }
                 else
                     acc[key].statDiff -= entry.stat;
 
                   return acc;
             }, {});
+            for (var key in playoffData){
+                var playerStats = playoffData[key];
+                var matchingItem = playerData.find(function(item) {
+                    return item.display_first_last === playerStats.player_name;
+                });
+                playerStats.matchedItem = matchingItem;
+            }
             fillPlot(playoffData);
         }
 
@@ -179,7 +254,7 @@ class PlayerPerf{
 
         function createYearDD(){
             const yearSelect = d3.select("#perf-year-select")
-                .attr("id", "perf-year-select")
+                .attr("id", "perf-year-select");
 
             const years = [...new Set(combinedData.map(obj => obj.season))];
 
@@ -202,7 +277,7 @@ class PlayerPerf{
 
         function createMetricDD(){
             const metricSelect = d3.select("#perf-metric-select")
-                .attr("id", "perf-metric-select")
+                .attr("id", "perf-metric-select");
                 const metricOptions = [
                     "Box Offense",
                     "Box Defense",
@@ -244,10 +319,12 @@ class PlayerPerf{
 
         Promise.all([
             d3.csv("modern_RAPTOR_by_team.csv"),
-            d3.csv("latest_RAPTOR_by_team.csv")
+            d3.csv("latest_RAPTOR_by_team.csv"),
+            d3.csv("common_player_info.csv")
         ]).then(function(values) {
             const modernData = values[0];
             const latestData = values[1];
+            playerData = values[2];
             combinedData = modernData.concat(latestData);
 
             yearSelect = createYearDD();
@@ -259,6 +336,7 @@ class PlayerPerf{
             metricSelect.on('change', function(){
                 handleSelect(yearSelect, metricSelect);
             });
+            
 
         });
            
