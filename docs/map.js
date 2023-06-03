@@ -286,6 +286,118 @@ class NBAMap {
     };
   }
 
+  createPlayerSelectHandlerDD(self, svg) {
+    return function () {
+      const selectedPlayer = d3.select(this).property("value");
+      const journeyPaths = svg.selectAll(".journey-path");
+
+      self.handlePlayerSelect(self, journeyPaths, selectedPlayer);
+    };
+  }
+
+  drawJourneyPaths(
+    self,
+    svg,
+    journeyCoords,
+    projection,
+    sortedPlayerNames,
+    playerSelect
+  ) {
+    const pathGenerator = self.getGeoGenerator(projection);
+
+    const features = journeyCoords.flatMap((journey, index) => {
+      return journey.slice(0, -1).map((coord, innerIndex) => ({
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: [coord, journey[innerIndex + 1]],
+        },
+        properties: {
+          player: sortedPlayerNames[index],
+        },
+      }));
+    });
+
+    let journeyPaths = svg
+      .selectAll(".journey-path")
+      .data(features)
+      .join("path")
+      .attr("class", "journey-path")
+      .attr("id", (d, i) => `journey-path-${i}`)
+      .attr("d", pathGenerator)
+      .style("fill", "none")
+      .style("stroke", "gray")
+      .style("stroke-width", DEFAULTSTROKEWIDTH);
+
+    journeyPaths
+      .on(
+        "mouseover",
+        self.createMouseOverHandlerOutJourneyPath(svg, playerSelect)
+      )
+      .on(
+        "mouseout",
+        self.createMouseOverHandlerOutJourneyPath(svg, playerSelect)
+      )
+      .on(
+        "click",
+        self.createMouseClickHandlerJourneyPath(self, svg, playerSelect)
+      );
+  }
+
+  handlePlayerSelect(self, journeyPaths, selectedPlayer) {
+    journeyPaths.style("stroke-width", (d, i) => {
+      const playerName = d.properties.player;
+      if (selectedPlayer === "--Player--") return DEFAULTSTROKEWIDTH;
+      return playerName === selectedPlayer ? 3 : 0;
+    });
+  }
+
+  createMouseClickHandlerJourneyPath(self, svg, playerSelect) {
+    return function (event, d) {
+      const journeyPaths = svg.selectAll(".journey-path");
+      const selectedPlayer = d.properties.player;
+
+      self.handlePlayerSelect(self, journeyPaths, selectedPlayer);
+
+      // also modify the dropdown
+      playerSelect.property("value", selectedPlayer);
+    };
+  }
+
+  createMouseOverHandlerOutJourneyPath(svg, playerSelect) {
+    return function (event, d) {
+      const playerName = d.properties.player;
+      // event type is either "mouseover" or "mouseout"
+      const isMouseOver = event.type === "mouseover";
+
+      svg
+        .selectAll(".journey-path")
+        .filter(
+          (pathData) =>
+            pathData.properties.player === playerName &&
+            (isMouseOver
+              ? true
+              : pathData.properties.player !== playerSelect.property("value"))
+        )
+        .transition()
+        .duration(50)
+        .style("stroke-width", isMouseOver ? "3px" : `${DEFAULTSTROKEWIDTH}px`); // can't use number here for some reason
+
+      if (isMouseOver) {
+        const [x, y] = d3.pointer(event, svg.node());
+
+        svg
+          .append("text")
+          .attr("id", "tooltip")
+          .attr("x", x + 10)
+          .attr("y", y - 10)
+          .text(playerName);
+      } else {
+        svg.select("#tooltip").remove();
+      }
+    };
+  }
+
   sortPlayerNames(playerNames) {
     return playerNames.sort((a, b) => a.localeCompare(b));
   }
@@ -358,118 +470,6 @@ class NBAMap {
         return [teamRow.longitude, teamRow.latitude];
       });
     });
-  }
-
-  drawJourneyPaths(
-    self,
-    svg,
-    journeyCoords,
-    projection,
-    sortedPlayerNames,
-    playerSelect
-  ) {
-    const pathGenerator = self.getGeoGenerator(projection);
-
-    const features = journeyCoords.flatMap((journey, index) => {
-      return journey.slice(0, -1).map((coord, innerIndex) => ({
-        type: "Feature",
-        geometry: {
-          type: "LineString",
-          coordinates: [coord, journey[innerIndex + 1]],
-        },
-        properties: {
-          player: sortedPlayerNames[index],
-        },
-      }));
-    });
-
-    let journeyPaths = svg
-      .selectAll(".journey-path")
-      .data(features)
-      .join("path")
-      .attr("class", "journey-path")
-      .attr("id", (d, i) => `journey-path-${i}`)
-      .attr("d", pathGenerator)
-      .style("fill", "none")
-      .style("stroke", "gray")
-      .style("stroke-width", DEFAULTSTROKEWIDTH);
-
-    journeyPaths
-      .on(
-        "mouseover",
-        self.createMouseOverHandlerOutJourneyPath(svg, playerSelect)
-      )
-      .on(
-        "mouseout",
-        self.createMouseOverHandlerOutJourneyPath(svg, playerSelect)
-      )
-      .on(
-        "click",
-        self.createMouseClickHandlerJourneyPath(self, svg, playerSelect)
-      );
-  }
-
-  createPlayerSelectHandlerDD(self, svg) {
-    return function () {
-      const selectedPlayer = d3.select(this).property("value");
-      const journeyPaths = svg.selectAll(".journey-path");
-
-      self.handlePlayerSelect(journeyPaths, selectedPlayer);
-    };
-  }
-
-  createMouseClickHandlerJourneyPath(self, svg, playerSelect) {
-    return function (event, d) {
-      const journeyPaths = svg.selectAll(".journey-path");
-      const selectedPlayer = d.properties.player;
-
-      self.handlePlayerSelect(journeyPaths, selectedPlayer);
-
-      // also modify the dropdown
-      playerSelect.property("value", selectedPlayer);
-    };
-  }
-
-  handlePlayerSelect(journeyPaths, selectedPlayer) {
-    journeyPaths.style("stroke-width", (d, i) => {
-      const playerName = d.properties.player;
-      if (selectedPlayer === "--Player--") return DEFAULTSTROKEWIDTH;
-      return playerName === selectedPlayer ? 3 : 0;
-    });
-  }
-
-  createMouseOverHandlerOutJourneyPath(svg, playerSelect) {
-    return function (event, d) {
-      const playerName = d.properties.player;
-      // event type is either "mouseover" or "mouseout"
-      const isMouseOver = event.type === "mouseover";
-
-      svg
-        .selectAll(".journey-path")
-        .filter(
-          (pathData) =>
-            pathData.properties.player === playerName &&
-            (isMouseOver
-              ? true
-              : pathData.properties.player !== playerSelect.property("value"))
-        )
-        .transition()
-        .duration(50)
-        .style("stroke-width", isMouseOver ? "3px" : `${DEFAULTSTROKEWIDTH}px`); // can't use number here for some reason
-
-      if (isMouseOver) {
-        const [x, y] = d3.pointer(event, svg.node());
-
-        svg
-          .append("text")
-          .attr("id", "tooltip")
-          .attr("x", x + 10)
-          .attr("y", y - 10)
-          .text(playerName);
-      } else {
-        svg.select("#tooltip").remove();
-      }
-    };
   }
 }
 
