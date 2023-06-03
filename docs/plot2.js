@@ -336,10 +336,10 @@ class Head2Head{
             const originalSize = d3.select(this).attr("original-size");
             const originalColour = d3.select(this).attr("original-colour");
             d3.select(this)
-                .transition()
-                .duration(200)
-                .attr("r", originalSize)
-                .style("fill", originalColour);
+            .transition()
+            .duration(200)
+            .attr("r", originalSize)
+            .style("fill", originalColour);
             svg.select("#tooltip").remove();
             d3.selectAll('text#tooltip').remove();
             d3.selectAll('image').remove();
