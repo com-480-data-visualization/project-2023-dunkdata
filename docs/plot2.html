@@ -16,21 +16,21 @@
     }
 
     #h2hcontainer {
-      background-color: rgb(242, 215, 215);
+      background-color: rgb(255, 255, 255);
     }
-    
+
     table {
       border-collapse: collapse;
       width: 300px;
       display: none;
     }
-    
+
     th, td {
       border: 1px solid #ddd;
       padding: 8px;
       text-align: left;
     }
-    
+
     th {
       background-color: white;
     }
@@ -52,7 +52,7 @@
     #selectedTeamContainer {
       width: 100px;
       height: 100px;
-      border: 1px solid #ccc;
+      border: 0px solid #ccc;
       margin-top: 20px;
     }
 
@@ -125,9 +125,9 @@
 </head>
 <body>
   <p>This visualization (sketch) shows both head-to-head and home vs away performance for a given team.</p>
-  
-  
-  
+
+
+
   <div id="h2hcontainer">
 
 
@@ -136,17 +136,17 @@
       <button class="carousel-next-button">&gt;</button>
       <div class="carousel-slider"></div>
     </div>
-    
+
 
     <div class="selections-container">
       <div id="selectedTeamContainer">
-        <span class="select-team-message" style="vertical-align: middle; line-height: 100px;">Select Team</span>
+        <span class="select-team-message" style="vertical-align: middle; line-height: 100px;"></span>
       </div>
       <select id="h2h-metric-select"></select>
     </div>
     <svg id="map_h2h" viewBox="0 0 960 500" width="90%"></svg>
   </div>
-  
+
   <div class="table-container">
     <table id="statsTableAway">
       <thead>
@@ -155,7 +155,7 @@
       </tbody>
     </table>
   </div>
-  
+
   <div class="table-container">
     <table id="statsTableHome">
       <thead>
