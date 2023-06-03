@@ -153,7 +153,10 @@ class NBAMap {
     );
     self.populateDropdown(teamSelect, ["--Team--"]);
 
-    playerSelect.on("change", self.createPlayerSelectHandlerDD(self, svg));
+    playerSelect.on(
+      "change",
+      self.createPlayerSelectHandlerDD(self, svg, projection)
+    );
     self.populateDropdown(playerSelect, ["--Player--"]);
   }
 
@@ -286,12 +289,12 @@ class NBAMap {
     };
   }
 
-  createPlayerSelectHandlerDD(self, svg) {
+  createPlayerSelectHandlerDD(self, svg, projection) {
     return function () {
       const selectedPlayer = d3.select(this).property("value");
       const journeyPaths = svg.selectAll(".journey-path");
 
-      self.handlePlayerSelect(self, journeyPaths, selectedPlayer);
+      self.handlePlayerSelect(self, journeyPaths, selectedPlayer, projection);
     };
   }
 
@@ -332,53 +335,122 @@ class NBAMap {
     journeyPaths
       .on(
         "mouseover",
-        self.createMouseOverHandlerOutJourneyPath(svg, playerSelect)
+        self.createMouseHoverHandlerJourneyPath(svg, playerSelect)
       )
       .on(
         "mouseout",
-        self.createMouseOverHandlerOutJourneyPath(svg, playerSelect)
+        self.createMouseHoverHandlerJourneyPath(svg, playerSelect)
       )
       .on(
         "click",
-        self.createMouseClickHandlerJourneyPath(self, svg, playerSelect)
+        self.createMouseClickHandlerJourneyPath(
+          self,
+          svg,
+          playerSelect,
+          projection
+        )
       );
   }
 
-  handlePlayerSelect(self, journeyPaths, selectedPlayer) {
+  handlePlayerSelect(self, journeyPaths, selectedPlayer, projection) {
+    const dur = 1000;
     journeyPaths.style("stroke-width", (d, i) => {
-      const playerName = d.properties.player;
       if (selectedPlayer === "--Player--") return DEFAULTSTROKEWIDTH;
-      return playerName === selectedPlayer ? 3 : 0;
+      return 0;
+    });
+    if (selectedPlayer === "--Player--") return null;
+    // call animatePath on the selected player
+    // find the path of the selected player
+    // for each feature in the path, call animatePath
+    const selectedJourneyPath = journeyPaths.filter((d, i) => {
+      return d.properties.player === selectedPlayer;
+    });
+    selectedJourneyPath.style("stroke-width", DEFAULTSTROKEWIDTH);
+    const selectedJourneyPathFeatures = selectedJourneyPath.data();
+    let delay = 0;
+    selectedJourneyPathFeatures.forEach((feature) => {
+      setTimeout(() => {
+        self.animatePath(self, feature, projection, dur);
+      }, delay);
+      delay += dur;
     });
   }
 
-  createMouseClickHandlerJourneyPath(self, svg, playerSelect) {
+  animatePath(self, feature, projection, dur) {
+    let pathGenerator = self.getGeoGenerator(projection);
+    let path = self.svg
+      .append("path")
+      .datum(feature)
+      .attr("class", "animated-path")
+      .attr("d", pathGenerator)
+      .style("fill", "none")
+      .style("stroke", "green")
+      .style("stroke-width", 2);
+    let totalLength = path.node().getTotalLength();
+    path
+      .attr("stroke-dasharray", totalLength + " " + totalLength)
+      .attr("stroke-dashoffset", totalLength)
+      .transition()
+      .duration(dur)
+      .ease(d3.easeLinear)
+      .attr("stroke-dashoffset", 0)
+      .transition()
+      .duration(dur)
+      .ease(d3.easeLinear)
+      .attr("stroke-dashoffset", -totalLength)
+      .remove();
+
+    // Get the coordinates of the destination point
+    let pointCoords = feature.geometry.coordinates[1];
+    let projected = projection(pointCoords);
+    if (!projected) return null;
+    // Create a circle element at the point coordinates
+    self.svg
+      .append("circle")
+      .attr("cx", projected[0])
+      .attr("cy", projected[1])
+      .attr("r", 8)
+      .attr("class", "animated-circle")
+      .style("fill", "orange")
+      .style("opacity", 0)
+      .transition()
+      .duration(dur * 2)
+      .style("opacity", 1)
+      .transition()
+      .duration(dur * 2)
+      .style("opacity", 0)
+      .remove();
+  }
+
+  createMouseClickHandlerJourneyPath(self, svg, playerSelect, projection) {
     return function (event, d) {
       const journeyPaths = svg.selectAll(".journey-path");
       const selectedPlayer = d.properties.player;
 
-      self.handlePlayerSelect(self, journeyPaths, selectedPlayer);
+      self.handlePlayerSelect(self, journeyPaths, selectedPlayer, projection);
 
       // also modify the dropdown
       playerSelect.property("value", selectedPlayer);
     };
   }
 
-  createMouseOverHandlerOutJourneyPath(svg, playerSelect) {
+  createMouseHoverHandlerJourneyPath(svg, playerSelect) {
+    // mouseover: increase stroke width of the path of the hovered player
+    // mouseout: decrease stroke width of the path of the hovered player
     return function (event, d) {
-      const playerName = d.properties.player;
+      const hoveredPlayerName = d.properties.player;
       // event type is either "mouseover" or "mouseout"
       const isMouseOver = event.type === "mouseover";
 
       svg
         .selectAll(".journey-path")
-        .filter(
-          (pathData) =>
-            pathData.properties.player === playerName &&
-            (isMouseOver
-              ? true
-              : pathData.properties.player !== playerSelect.property("value"))
-        )
+        .filter((pathData) => {
+          const isHoveredPath =
+            pathData.properties.player === hoveredPlayerName;
+          const isNotSelectedPath =
+            pathData.properties.player !== playerSelect.property("value");
+          return isHoveredPath && (isMouseOver ? true : isNotSelectedPath);
+        })
         .transition()
         .duration(50)
         .style("stroke-width", isMouseOver ? "3px" : `${DEFAULTSTROKEWIDTH}px`); // can't use number here for some reason
@@ -391,7 +463,7 @@ class NBAMap {
           .attr("id", "tooltip")
           .attr("x", x + 10)
           .attr("y", y - 10)
-          .text(playerName);
+          .text(hoveredPlayerName);
       } else {
         svg.select("#tooltip").remove();
       }
@@ -441,11 +513,16 @@ class NBAMap {
     const selectedSeason = seasonSelect.property("value");
     const selectedSeasonNum = self.getSelectedSeasonNum(selectedSeason);
     return playerNames.map((playerName) => {
-      return journeyData
+      const playerTeams = journeyData
         .filter(
           (d) => d.player_name === playerName && d.season <= selectedSeasonNum
         )
         .map((row) => row.team);
+      // only keep a list of teams where each team does not repeat consecutively
+      const uniquePlayerTeams = playerTeams.filter(
+        (team, i) => i === 0 || team !== playerTeams[i - 1]
+      );
+      return uniquePlayerTeams;
     });
   }
 
