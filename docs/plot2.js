@@ -27,7 +27,7 @@ class Head2Head{
         let prevButton;
         let nextButton;
         let curSlide = 0;
-        
+
         let teamToID = {}; // dictionary converting team nickname to team_id
 
         let metricsDict = {
@@ -50,7 +50,7 @@ class Head2Head{
             "Turnovers": "tov",
             "Fouls": "pf",
           };
-          
+
 
         function getGeoGenerator(projection) {
             return d3.geoPath().projection(projection);
@@ -86,9 +86,9 @@ class Head2Head{
                         countStatsAway[attribute]++;
                     }
                 })
-              
+
             });
-              
+
             // Calculate average stats
             const averageStats = {};
 
@@ -116,7 +116,7 @@ class Head2Head{
             handleSelect();
         }
 
-                      
+
 
         // Function to move to the previous slide
         function goToPrevSlide() {
@@ -160,7 +160,7 @@ class Head2Head{
                 });
 
                 logoContainerDiv.appendChild(logoElement);
-          
+
                 // Append the logo element to the carousel slide
                 carouselSlider.appendChild(logoContainerDiv);
             });
@@ -168,39 +168,39 @@ class Head2Head{
             // Create carousel navigation buttons
             prevButton = document.createElement('button');
             prevButton.classList.add('carousel-prev-button');
-          
+
             nextButton = document.createElement('button');
             nextButton.classList.add('carousel-next-button');
 
             prevButton.addEventListener('click', goToPrevSlide);
             nextButton.addEventListener('click', goToNextSlide);
-          
+
             // Append carousel slide and buttons to the logo container
             logoContainer.innerHTML = '';
             logoContainer.appendChild(prevButton);
             logoContainer.appendChild(carouselSlider);
             logoContainer.appendChild(nextButton);
           }
-          
-          
+
+
 
         function generateLogoGrid() {
             var logoGrid = document.getElementById('logoGrid');
-          
+
             // Clear the existing content in the logo grid
             logoGrid.innerHTML = '';
-          
+
             // Loop through the teams array and create logo elements
             teamData.forEach(function (team) {
                 var logoElement = document.createElement('img');
                 logoElement.src = "logos/" + team.abbreviation + "_2023.png";
                 logoElement.alt = team.nickname;
-            
+
                 // Add click event listener to the logo element
                 logoElement.addEventListener('click', function () {
                     fillSelectedTeam(logoElement, team, logoGrid);
                 });
-            
+
             // Append the logo element to the logo grid container
             logoGrid.appendChild(logoElement);
             });
@@ -227,7 +227,7 @@ class Head2Head{
                 newCaption.textContent = awayTeam + " @ " + homeTeam;
                 table.replaceChild(newCaption, oldCaption);
             }
-          
+
             // Define the column names and data for the table
             var columns = ["Stats", homeTeam, awayTeam];
             var data = [
@@ -248,12 +248,12 @@ class Head2Head{
                 }
                 data.push(rowData);
             }
-            
+
             // Create table header row
             var thead = table.getElementsByTagName("thead")[0];
             var headerRow = document.createElement("tr");
 
-            
+
             for (var i = 0; i < columns.length; i++) {
                 var th = document.createElement("th");
                 th.textContent = columns[i];
@@ -266,17 +266,17 @@ class Head2Head{
 
             for (var i = 0; i < data.length; i++) {
                 var row = document.createElement("tr");
-            
+
                 for (var j = 0; j < data[i].length; j++) {
                   var cell = document.createElement("td");
                   cell.textContent = data[i][j];
                   row.appendChild(cell);
                 }
-            
+
                 tbody.appendChild(row);
               }
 
-            
+
         }
 
         function mouseOver(event, d){
@@ -306,8 +306,8 @@ class Head2Head{
                 .attr("y", projected[1] - 60) // Set the y-coordinate of the image position
                 .attr("width", 50) // Set the width of the image
                 .attr("height", 50); // Set the height of the image
-             
-                
+
+
             if(dropdownsActive){
                 const streak = d3.select(this).attr("streak");
                 var characterWidths = streak.split('').map(function(d) {
@@ -354,7 +354,7 @@ class Head2Head{
             var homeTeam;
             var awayTeam;
             teamData.forEach(element => {
-                if (d.id === element.id) 
+                if (d.id === element.id)
                   homeTeam = element.nickname;
                 if (curTeam === element.id)
                     awayTeam = element.nickname;
@@ -376,14 +376,6 @@ class Head2Head{
                 .join("circle")
                 .attr("id", d => d.id)
                 .attr("cx", function(d) {
-                    if(d.nickname == "Clippers"){
-                        d.longitude = String(parseFloat(d.longitude) + 1);
-                        return projection([d.longitude, d.latitude])[0];
-                    }
-                    if(d.nickname == "Nets"){
-                        d.longitude = String(parseFloat(d.longitude) + 1); // Brooklyn is slightly west of New York
-                        return projection([d.longitude, d.latitude])[0];
-                    }
                     return projection([d.longitude, d.latitude])[0];
                 })
                 .attr("cy", function(d) {
@@ -414,7 +406,7 @@ class Head2Head{
         function findMinMax(aggMetric) {
             let l = -Infinity;
             let s = Infinity;
-          
+
             for (const id in aggMetric) {
               const perfAway = aggMetric[id].perf_away;
               if(perfAway > l){
@@ -473,7 +465,7 @@ class Head2Head{
         }
 
         function createGradient(team_id, metric_prefix){
-            /* Get only games in which the selected team was the away team 
+            /* Get only games in which the selected team was the away team
             * Group the teams played against and aggregate the relevant stat
             */
             curTeam = team_id; // For the mouseclick event
@@ -523,7 +515,7 @@ class Head2Head{
                 if(record.hasOwnProperty(id))
                     return record[id];
             });
-            
+
             circles.style('fill', d => {
                 const id = d.id;
                 if (aggMetric.hasOwnProperty(id)) {
@@ -576,7 +568,7 @@ class Head2Head{
                 // Reset, that is, Remove the visualisation (optional)
             }
         }
-        
+
         let projection = this.createProjection();
 
         let svg = this.svg;
@@ -623,14 +615,14 @@ class Head2Head{
                 playoffData = values[2];
                 playoffData = playoffData.filter(d => d.GAME_ID.charAt(0) === "4"); // games whose ids start with 4 are
 
-                // Fill up teamToID dictionary 
+                // Fill up teamToID dictionary
                 teamData.forEach(element => teamToID[element.nickname] = element.id);
 
                 createCircles(svg, teamData, projection);
                 teamSelect = createTeamDD(svg, projection);
                 metricSelect = createMetricDD(svg, projection);
                 generateLogoCarousel();
-                
+
                 // teamSelect.on('change', function(){
                 //     handleSelect();
                 // });
