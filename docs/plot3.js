@@ -162,6 +162,7 @@ class PlayerPerf{
         
             // Add text labels to legend items
             legendItems.append("div")
+                .style("font-size", "14px")
                 .text(function(d) { return d; });
 
 
@@ -175,6 +176,22 @@ class PlayerPerf{
                         return circleColor === clickedColor ? 'block' : 'none';
                     });
                 });
+            }
+
+            function handleTeam(changeScale){
+                var teams = new Set();
+                Object.values(playoffData).forEach(element => {
+                    if(element.team)
+                        teams.add(element.team);
+                });
+                let sortedTeams = Array.from(teams);
+                sortedTeams.sort();
+                if(changeScale)
+                    colorScale = generateColorScale(sortedTeams);
+                circles.attr("fill", function(d) { 
+                    return colorScale(d.team); 
+                });
+                createLegend(sortedTeams);
             }
 
         function handleHeight(changeScale){
@@ -411,9 +428,12 @@ class PlayerPerf{
                     clearScatter();
                     createScatter(metricsDict[selectedMetric], yearsDict[selectedYear]);
                     if(category == "Position")
-                        handlePosition(catChange);
+                        handlePosition(catChange); // Only change the legend if the category is changed
                     if(category == "Height")
-                        handleHeight(!metChange);
+                        handleHeight(!metChange); // No need to change the legend when the metric changes
+                    if(category == "Team")
+                        handleTeam(!metChange); // Have to change if year is changed, since different teams make it to the playoffs
+
                 }
                 else{
                     dropdownsActive = false;
