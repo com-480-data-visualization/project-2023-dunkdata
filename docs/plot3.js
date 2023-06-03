@@ -176,23 +176,61 @@ class PlayerPerf{
                         return circleColor === clickedColor ? 'block' : 'none';
                     });
                 });
-            }
+        }
 
-            function handleTeam(changeScale){
-                var teams = new Set();
-                Object.values(playoffData).forEach(element => {
-                    if(element.team)
-                        teams.add(element.team);
-                });
-                let sortedTeams = Array.from(teams);
-                sortedTeams.sort();
-                if(changeScale)
-                    colorScale = generateColorScale(sortedTeams);
-                circles.attr("fill", function(d) { 
-                    return colorScale(d.team); 
-                });
-                createLegend(sortedTeams);
+        function calculateAge(birthdate, currentDate) {
+
+            var birthDateObj = new Date(birthdate);
+            var currentDateObj = new Date(currentDate);
+          
+            // difference in years between the dates
+            var age = currentDateObj.getFullYear() - birthDateObj.getFullYear();
+          
+            // if the current date is before the birthdate in the same year
+            if (
+              currentDateObj.getMonth() < birthDateObj.getMonth() ||
+              (currentDateObj.getMonth() === birthDateObj.getMonth() &&
+                currentDateObj.getDate() < birthDateObj.getDate())
+            ) {
+              age--;
             }
+          
+            return age;
+          }
+
+        function handleAge(changeScale){
+            var ages = new Set();
+            const selectedYear = yearSelect.property('value');
+            const curDate = "20" + selectedYear.slice(-2) + "-04-15 00:00:00"; // start of the play-offs
+            Object.values(playoffData).forEach(element => {
+                if(element.matchedItem.birthdate)
+                    ages.add(calculateAge(element.matchedItem.birthdate, curDate));
+            });
+            let sortedAges = Array.from(ages);
+            sortedAges.sort();
+            if(changeScale)
+                colorScale = generateColorScale(sortedAges);
+            circles.attr("fill", function(d) { 
+                return colorScale(calculateAge(d.matchedItem.birthdate, curDate)); 
+            });
+            createLegend(sortedAges);
+        }
+
+        function handleTeam(changeScale){
+            var teams = new Set();
+            Object.values(playoffData).forEach(element => {
+                if(element.team)
+                    teams.add(element.team);
+            });
+            let sortedTeams = Array.from(teams);
+            sortedTeams.sort();
+            if(changeScale)
+                colorScale = generateColorScale(sortedTeams);
+            circles.attr("fill", function(d) { 
+                return colorScale(d.team); 
+            });
+            createLegend(sortedTeams);
+        }
 
         function handleHeight(changeScale){
             var heights = new Set();
@@ -241,7 +279,8 @@ class PlayerPerf{
             catSelect = d3.select("#category")
                 .attr("id", "category");
             catSelect.style("display", "block");
-            const categories = ["--Category--", "Position", "Height", "Team", "Country", "Age"];
+            const categories = ["--Category--", "Position", "Height", "Team", "Age"];
+            // const categories = ["--Category--", "Position", "Height", "Team", "Age", "Country"];
             populateDropdown(catSelect, categories);
             catSelect.on('change', function(){
                 handleSelect(false, true);
@@ -354,7 +393,7 @@ class PlayerPerf{
         }
 
         function createYearDD(){
-            const yearSelect = d3.select("#perf-year-select")
+            yearSelect = d3.select("#perf-year-select")
                 .attr("id", "perf-year-select");
 
             const years = [...new Set(combinedData.map(obj => obj.season))];
@@ -377,7 +416,7 @@ class PlayerPerf{
         }
 
         function createMetricDD(){
-            const metricSelect = d3.select("#perf-metric-select")
+            metricSelect = d3.select("#perf-metric-select")
                 .attr("id", "perf-metric-select");
                 const metricOptions = [
                     "Box Offense",
@@ -433,6 +472,8 @@ class PlayerPerf{
                         handleHeight(!metChange); // No need to change the legend when the metric changes
                     if(category == "Team")
                         handleTeam(!metChange); // Have to change if year is changed, since different teams make it to the playoffs
+                    if(category == "Age")
+                        handleAge(!metChange); // Have to change if year is changed, since different teams make it to the playoffs
 
                 }
                 else{
