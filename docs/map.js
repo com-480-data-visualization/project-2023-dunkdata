@@ -449,7 +449,12 @@ class NBAMap {
             pathData.properties.player === hoveredPlayerName;
           const isNotSelectedPath =
             pathData.properties.player !== playerSelect.property("value");
-          return isHoveredPath && (isMouseOver ? true : isNotSelectedPath);
+          const isNotAllPathsSelected =
+            playerSelect.property("value") !== "--Player--";
+          return (
+            isHoveredPath &&
+            (isMouseOver || isNotSelectedPath || isNotAllPathsSelected)
+          );
         })
         .transition()
         .duration(50)
