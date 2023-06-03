@@ -272,7 +272,8 @@ class NBAMap {
       // this is a list of journeys of each player in the selected team
       const journeys = self.getPlayerJourneyData(
         self,
-        seasonSelect,
+        selectedSeasonNum,
+        selectedTeam,
         sortedPlayerNames,
         journeyData
       );
@@ -514,9 +515,13 @@ class NBAMap {
   }
 
   // for each player in playerNames, get the player's journey data
-  getPlayerJourneyData(self, seasonSelect, playerNames, journeyData) {
-    const selectedSeason = seasonSelect.property("value");
-    const selectedSeasonNum = self.getSelectedSeasonNum(selectedSeason);
+  getPlayerJourneyData(
+    self,
+    selectedSeasonNum,
+    selectedTeam,
+    playerNames,
+    journeyData
+  ) {
     return playerNames.map((playerName) => {
       const playerTeams = journeyData
         .filter(
@@ -527,6 +532,11 @@ class NBAMap {
       const uniquePlayerTeams = playerTeams.filter(
         (team, i) => i === 0 || team !== playerTeams[i - 1]
       );
+      //TODO: this is not working
+      const finalTeamIndex = uniquePlayerTeams.lastIndexOf(selectedTeam);
+      if (finalTeamIndex !== -1) {
+        return uniquePlayerTeams.slice(0, finalTeamIndex + 1);
+      }
       return uniquePlayerTeams;
     });
   }
