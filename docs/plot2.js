@@ -9,6 +9,7 @@ class Head2Head{
         let selectedTeam = null;
         let curTeam;
         let dropdownsActive = false;
+        let maxAway = {};
         this.svg = d3.select('#' + svg_id);
 		//Get the svg dimensions
 		const svg_viewbox = this.svg.node().viewBox.animVal;
@@ -56,8 +57,7 @@ class Head2Head{
             return d3.geoPath().projection(projection);
         }
 
-        function summary(games, homeTeam, awayTeam, away){
-            let totalGames = 0;
+        function summary(games, homeTeam, awayTeam, away, allAway){
             const sumStatsHome = {};
             const sumStatsAway = {};
             const countStatsHome = {}; // since some of the values are null, we want to divide by the total number of non-null entries
@@ -86,20 +86,38 @@ class Head2Head{
                         countStatsAway[attribute]++;
                     }
                 })
-
             });
 
             // Calculate average stats
             const averageStats = {};
+            if(away){
+                const sumStatsAway = {};
+                const countStatsAway = {};
+                allAway.forEach(game => {
+                    attributesAway.forEach(attribute => {
+                        if(!sumStatsAway[attribute]){
+                            sumStatsAway[attribute] = 0;
+                            countStatsAway[attribute] = 0;
+                        }
+                        if(game[attribute] !== null){
+                            sumStatsAway[attribute] += parseFloat(game[attribute]);
+                            countStatsAway[attribute]++;
+                        }
+                    })
+                });
+                attributes.forEach(attribute =>{
+                    maxAway[attribute] = sumStatsAway[attribute+"_away"] / countStatsAway[attribute+"_away"];
+                });
+            }
 
             attributes.forEach(attribute => {
                 averageStats[attribute] = [(sumStatsHome[attribute+"_home"] / countStatsHome[attribute+"_home"]).toFixed(2), (sumStatsAway[attribute+"_away"] / countStatsAway[attribute+"_away"]).toFixed(2)];
             });
 
             if(away)
-                createTable(averageStats, "statsTableAway", homeTeam, awayTeam);
+                createBarPlot(averageStats, "#statsBarAway", homeTeam, awayTeam);
             else
-                createTable(averageStats, "statsTableHome", homeTeam, awayTeam);
+                createBarPlot(averageStats, "#statsBarHome", homeTeam, awayTeam);
         }
 
         function fillSelectedTeam(logoElement, team){
@@ -205,6 +223,113 @@ class Head2Head{
             logoGrid.appendChild(logoElement);
             });
           }
+          
+          function createBarPlot(displayDict, chartName, homeTeam, awayTeam) {
+            // Clear existing chart
+            d3.select(chartName).selectAll("*").remove();
+          
+            // Get the container dimensions
+            var container = document.getElementById(chartName.slice(1)); // Remove the "#" from chartName
+            var containerWidth = container.clientWidth;
+            var containerHeight = container.clientHeight;
+          
+            // Define the margin and calculate the chart dimensions
+            var margin = { top: 50, right: 20, bottom: 50, left: 150 };
+            var width = containerWidth - margin.left - margin.right;
+            var height = containerHeight - margin.top - margin.bottom;
+          
+            // Create the SVG container for the chart
+            var svg = d3
+              .select(chartName)
+              .append("svg")
+              .attr("width", containerWidth)
+              .attr("height", containerHeight)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+          
+            // Define the column names and data for the chart
+            var columns = ["Stats", homeTeam, awayTeam];
+            var data = Object.entries(displayDict).map(([key, values]) => [key, values[0], values[1]]);
+          
+            // Define the y-axis scale
+            var yScale = d3
+              .scaleBand()
+              .domain(data.map((d) => d[0]))
+              .range([0, height])
+              .paddingInner(0.2)
+              .paddingOuter(0.2);
+          
+            // Define the x-axis scale
+            var xScale = d3
+              .scaleLinear()
+              .domain([0, d3.max(data, (d) => Math.max(d[1], d[2]))])
+              .range([0, width]);
+          
+            // Create the pairs of bars
+            svg.selectAll("g")
+              .data(data)
+              .enter()
+              .append("g")
+              .attr("transform", (d) => "translate(0," + yScale(d[0]) + ")")
+              .selectAll("rect")
+              .data((d) => [d[1], d[2]])
+              .enter()
+              .append("rect")
+              .attr("x", 0)
+              .attr("y", (d, i) => i * yScale.bandwidth() / 2)
+              .attr("width", (d) => xScale(d))
+              .attr("height", yScale.bandwidth() / 2)
+              .attr("fill", (d, i) => (i === 0 ? "steelblue" : "orange"));
+          
+            // Create the y-axis
+            svg.append("g").call(d3.axisLeft(yScale));
+          
+            // Create the x-axis
+            svg.append("g")
+              .attr("transform", "translate(0," + height + ")")
+              .call(d3.axisBottom(xScale));
+          
+            // Create the chart title
+            svg.append("text")
+              .attr("x", width / 2)
+              .attr("y", -20)
+              .attr("text-anchor", "middle")
+              .attr("font-size", "20px")
+              .text(awayTeam + " @ " + homeTeam);
+          
+            // Create the legend
+            var legend = svg.append("g")
+              .attr("transform", "translate(" + (width - 120) + ",30)");
+          
+            legend.append("rect")
+              .attr("x", 0)
+              .attr("y", 0)
+              .attr("width", 15)
+              .attr("height", 15)
+              .attr("fill", "steelblue");
+          
+            legend.append("text")
+              .attr("x", 20)
+              .attr("y", 10)
+              .attr("alignment-baseline", "middle")
+              .text(homeTeam);
+          
+            legend.append("rect")
+              .attr("x", 0)
+              .attr("y", 20)
+              .attr("width", 15)
+              .attr("height", 15)
+              .attr("fill", "orange");
+          
+            legend.append("text")
+              .attr("x", 20)
+              .attr("y", 30)
+              .attr("alignment-baseline", "middle")
+              .text(awayTeam);
+          }
+          
+          
+          
 
         function createTable(displayDict, tableName, homeTeam, awayTeam){
             var table = document.getElementById(tableName);
@@ -360,7 +485,8 @@ class Head2Head{
                     awayTeam = element.nickname;
               });
             teamData.forEach(element => teamToID[element.nickname] = element.id);
-            summary(awayGames, homeTeam, awayTeam, true);
+            const allAway = gameData.filter((x) => x.team_id_away === curTeam);
+            summary(awayGames, homeTeam, awayTeam, true, allAway);
             summary(reverseFixture, awayTeam, homeTeam, false);
         }
 
