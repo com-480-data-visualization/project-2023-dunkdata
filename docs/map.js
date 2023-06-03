@@ -264,6 +264,7 @@ class NBAMap {
       ];
 
       self.populateDropdown(playerSelect, sortedPlayerNames);
+      playerSelect.property("value", sortedPlayerNames[0]);
 
       // this is a list of journeys of each player in the selected team
       const journeys = self.getPlayerJourneyData(
