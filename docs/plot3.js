@@ -9,6 +9,7 @@ class PlayerPerf{
         let yearsDict;
         let xScale;
         let yScale;
+        let colorScale;
         let curTeam;
         let dropdownsActive = false;
 
@@ -47,7 +48,6 @@ class PlayerPerf{
           };
 
 
-
         function mouseOver(event, d){
             d3.select(this)
             .attr("fill", "red")
@@ -56,8 +56,8 @@ class PlayerPerf{
           // Display the name
           svg.append("text")
             .attr("id", "nameLabel")
-            .attr("cx", xScale(d.cx) + 10)
-            .attr("cy", yScale(d.cy) - 10)
+            .attr("cx", 100)
+            .attr("cy", 100)
             .text(d.player_name)
             .attr("font-size", "12px")
             .attr("font-weight", "bold")
@@ -82,6 +82,17 @@ class PlayerPerf{
             .on("click", mouseClick);
         }
 
+        function clearScatter(){
+            svg.selectAll("circle").remove();
+            svg.selectAll(".x-axis").remove();
+            svg.selectAll(".y-axis").remove();
+        }
+
+        function clearLegend(){
+            var legendContainer = d3.select("#legend-container");
+            legendContainer.selectAll('*').remove();
+        }
+
         function generateRandomColor() {
             var r = Math.floor(Math.random() * 256);
             var g = Math.floor(Math.random() * 256);
@@ -91,7 +102,7 @@ class PlayerPerf{
           }
 
         function generateColorScale(domainValues) {
-            let colorScale;
+            let genColorScale;
             var colors = [];
   
             // Generate n distinct colors
@@ -105,51 +116,53 @@ class PlayerPerf{
                 
                 colors.push(color);
             }
-            colorScale = d3.scaleOrdinal()
+            genColorScale = d3.scaleOrdinal()
             .domain(domainValues)
             .range(colors);
             
-            return colorScale;
+            return genColorScale;
         }
 
-        function createLegend(legendArray, colorScale){
-            var legendContainer = d3.select("#legend-container")
+        function createLegend(legendArray){
+            var legendContainer = d3.select("#legend-container");
+            legendContainer.selectAll('*').remove();
       
-          // Create legend items
-          var legendItems = legendContainer.selectAll(".legend-item")
-            .data(legendArray)
-            .enter()
-            .append("div")
-            .attr("class", "legend-item");
-      
-          // Add color squares to legend items
-          legendItems.append("div")
-            .attr("class", "legend-color")
-            .style("background-color", function(d) { return colorScale(d); });
-      
-          // Add text labels to legend items
-          legendItems.append("div")
-            .text(function(d) { return d; });
+            // Create legend items
+            var legendItems = legendContainer.selectAll(".legend-item")
+                .data(legendArray)
+                .enter()
+                .append("div")
+                .attr("class", "legend-item");
+        
+            // Add color squares to legend items
+            legendItems.append("div")
+                .attr("class", "legend-color")
+                .style("background-color", function(d) { return colorScale(d); });
+        
+            // Add text labels to legend items
+            legendItems.append("div")
+                .text(function(d) { return d; });
 
             d3.selectAll('.legend-item')
-            .on('click', function() {
-                var clickedElem = d3.select(this).select('.legend-color');
-                var clickedColor = clickedElem.style('background-color');
-                // Filter the circles based on the clicked color
-                circles.style('display', function() {
-                    var circleColor = d3.select(this).attr('fill');
-                    return circleColor === clickedColor ? 'block' : 'none';
-                  });
-                });
-        }
+                .on('click', function() {
+                    var clickedElem = d3.select(this).select('.legend-color');
+                    var clickedColor = clickedElem.style('background-color');
+                    // Filter the circles based on the clicked color
+                    circles.style('display', function() {
+                        var circleColor = d3.select(this).attr('fill');
+                        return circleColor === clickedColor ? 'block' : 'none';
+                    });
+                    });
+            }
 
-        function handlePosition(){
+        function handlePosition(changeScale){
             var positions = new Set();
             playerData.forEach(element => {
                 if(element.position)
                     positions.add(element.position);
             });
-            const colorScale = generateColorScale(Array.from(positions));
+            if(changeScale)
+                colorScale = generateColorScale(Array.from(positions));
             circles.attr("fill", function(d) { 
                 return colorScale(d.matchedItem.position); 
             });
@@ -157,11 +170,7 @@ class PlayerPerf{
             createLegend(positions, colorScale);
     }
 
-        function handleCategories(){
-            const category = catSelect.property('value');
-            if(category === "Position")
-                handlePosition();
-        }
+        
 
         function createCategoryDD(){
             catSelect = d3.select("#category")
@@ -170,14 +179,14 @@ class PlayerPerf{
             const categories = ["--Category--", "Position", "Height", "Team", "Country", "Age"];
             populateDropdown(catSelect, categories);
             catSelect.on('change', function(){
-                handleCategories();
+                handleSelect(true);
             })
         }
 
         function fillPlot(playoffData){
-            svg.selectAll("circle").remove();
-            svg.selectAll(".x-axis").remove();
-            svg.selectAll(".y-axis").remove();
+            // svg.selectAll("circle").remove();
+            // svg.selectAll(".x-axis").remove();
+            // svg.selectAll(".y-axis").remove();
 
             const playoffArray = Object.values(playoffData);
 
@@ -332,18 +341,43 @@ class PlayerPerf{
             return metricSelect;
         }
 
-        function handleSelect(yearHandler, metricHandler){
-            const selectedYear = yearHandler.property('value');
-            const selectedMetric = metricHandler.property('value');
-            if(selectedYear != "--Year--" && selectedMetric != "--Metric--"){
-                dropdownsActive = true;
-                // Now that both the options are selected, we can present our visualisation
-                createScatter(metricsDict[selectedMetric], yearsDict[selectedYear]);
+        function handleSelect(catChange){
+            const selectedYear = yearSelect.property('value');
+            const selectedMetric = metricSelect.property('value');
+            
+            if(catSelect == null){
+                if(selectedYear != "--Year--" && selectedMetric != "--Metric--"){
+                    dropdownsActive = true;
+                    // Now that both the options are selected, we can present our visualisation
+                    clearScatter();
+                    createScatter(metricsDict[selectedMetric], yearsDict[selectedYear]);
+                }
+                else{
+                    dropdownsActive = false;
+                    clearScatter();
+                    // Reset, that is, Remove the visualisation (optional)
+                }
             }
             else{
+                const category = catSelect.property('value');
                 dropdownsActive = false;
-                // Reset, that is, Remove the visualisation (optional)
+                if(selectedYear != "--Year--" && selectedMetric != "--Metric--" && category != "--Category--"){
+                    dropdownsActive = true;
+                    clearScatter();
+                    createScatter(metricsDict[selectedMetric], yearsDict[selectedYear]);
+                    if(category == "Position")
+                        handlePosition(catChange);
+                    
+                }
+                else{
+                    dropdownsActive = false;
+                    // Reset, that is, Remove the visualisation (optional)
+                    clearScatter();
+                    clearLegend();
+                    createScatter(metricsDict[selectedMetric], yearsDict[selectedYear]);
+                }
             }
+            
         }
         let svg = this.svg;
 
@@ -361,10 +395,10 @@ class PlayerPerf{
             metricSelect = createMetricDD();
 
             yearSelect.on('change', function(){
-                handleSelect(yearSelect, metricSelect);
+                handleSelect(false);
             });
             metricSelect.on('change', function(){
-                handleSelect(yearSelect, metricSelect);
+                handleSelect(false);
             });
             
 
