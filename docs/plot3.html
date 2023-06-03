@@ -5,22 +5,58 @@
     <title>Scatter Plot</title>
     <style>
         #fullPlot {
-            width: 90%;
+            width: 100%;
             display: flex;
-            margin-left: 0%;
+            margin: auto;
             align-items: flex-start;
         }
 
         #player-container{
             display: flex;
             flex-wrap: wrap;
-            width: 10%;
+        }
+
+        /* .player-card{
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
             height: 20px;
             max-height: 400px;
-            color: red;
-            font-size: 12px;
-            font-weight: "bold";
-        }
+            margin: auto;
+        } */
+
+          .player-card {
+            border: 1px solid lightgrey;
+            background-color: #f9f9f9;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .player-name {
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+          }
+
+          .stat-name {
+            font-style: italic;
+            font-size: 14px;
+            text-align: center;
+          }
+
+          .player-stat {
+            font-size: 14px;
+            text-align: left;
+          }
+
+          .player-image {
+            display: block;
+            margin: 0 auto;
+            text-align: center;
+          }
 
         #scatterPlot {
             width: 800px;
@@ -40,6 +76,11 @@
             max-height: 500px;
             width: 400px;
             overflow-y: auto;
+        }
+
+        .plot-column {
+          flex: 1;
+          padding: 10px;
         }
 
 
@@ -79,9 +120,9 @@
     <br>
 
     <div id="fullPlot">
-      <div id="player-container"></div>
-      <div id="scatterPlot"></div>
-      <div id="legend-container"></div>
+      <div class="plot-column" id="player-container" style="width: 30%"></div>
+      <div class="plot-column" id="scatterPlot" style="width: 60%"></div>
+      <div class="plot-column" id="legend-container" style="width: 10%"></div>
     </div>
 
   </div>

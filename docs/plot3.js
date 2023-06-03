@@ -49,6 +49,9 @@ class PlayerPerf{
             "Pace Impact": "pace_impact"
           };
 
+        function roundToTwoDecimals(number){
+          return (Math.round(number * 100) / 100).toFixed(2)
+        }
 
         function mouseOver(event, d){
 
@@ -64,17 +67,44 @@ class PlayerPerf{
             .style("fill", "orange");
 
 
-        // Display the name
+        // Select the player container to create the player card
         var playerContainer = d3.select("#player-container");
 
-        // Append a new div for the player name
+        // Clear existing contents
+        playerContainer.html("");
 
-        playerName = playerContainer
-        .selectAll('span')
-        .data([d.player_name])
-        .enter()
-        .append('span')
-        .text(d => d);
+        // Create a box to enclose the player card
+        const infoBox = playerContainer.append("div")
+            .attr("class", "player-card");
+
+        // Append the player name
+        infoBox.append("div")
+            .attr("class", "player-name")
+            .text(d.player_name);
+
+        // Append the stats
+        infoBox.append("div")
+            .attr("class", "stat-name")
+            .text(metricSelect.property('value'))
+            .append("div")
+            .attr("class", "player-stat")
+            .text("Regular Season: " + roundToTwoDecimals(d.rs_stat))
+            .append("div")
+            .attr("class", "player-stat")
+            .text("Playoffs: " + roundToTwoDecimals(d.po_stat));
+
+        // Append the player image
+        infoBox.append("img")
+            .attr("class", "player-image")
+            .attr("src", "logos/ATL_2023.png");
+
+        // // Append a new div for the player name
+        // playerName = playerContainer
+        // .selectAll('span')
+        // .data([d.player_name])
+        // .enter()
+        // .append('span')
+        // .text(d => d);
 
         }
 
@@ -87,8 +117,8 @@ class PlayerPerf{
             .style("fill", originalColour)
             .attr("r", originalSize); // Restore the original circle size
 
-            // Remove the name label
-            playerName.remove();
+            // Remove the player information
+            d3.select("#player-container").html("");
         }
 
         function mouseClick(event, d){
