@@ -112,27 +112,29 @@ class PlayerPerf{
             legendContainer.selectAll('*').remove();
         }
 
-        function generateRandomColor() {
-            var r = Math.floor(Math.random() * 256);
-            var g = Math.floor(Math.random() * 256);
-            var b = Math.floor(Math.random() * 256);
+        // function generateRandomColor() {
+        //     var r = Math.floor(Math.random() * 256);
+        //     var g = Math.floor(Math.random() * 256);
+        //     var b = Math.floor(Math.random() * 256);
+        //
+        //     return "rgb(" + r + ", " + g + ", " + b + ")";
+        //   }
 
-            return "rgb(" + r + ", " + g + ", " + b + ")";
+        function generateEvenlySpacedColor(cur_idx, total_colors, minHue=0, maxHue=360, reversed=false) {
+          var prop = cur_idx / total_colors;
+          if (reversed) {
+            prop = 1 - prop;
           }
+          return d3.hsv((maxHue - minHue) * prop + minHue, 0.5, 0.9)
+        }
 
-        function generateColorScale(domainValues) {
+        function generateColorScale(domainValues, minHue=0, maxHue=360, reversed=false) {
             let genColorScale;
             var colors = [];
 
             // Generate n distinct colors
             for (var i = 0; i < domainValues.length; i++) {
-                var color = generateRandomColor();
-
-                // Check if the color is already in the array
-                while (colors.includes(color)) {
-                color = generateRandomColor();
-                }
-
+                var color = generateEvenlySpacedColor(i, domainValues.length, minHue, maxHue, reversed);
                 colors.push(color);
             }
 
@@ -142,6 +144,7 @@ class PlayerPerf{
 
             return genColorScale;
         }
+
 
         function createLegend(legendArray){
             var legendContainer = d3.select("#legend-container");
@@ -227,7 +230,7 @@ class PlayerPerf{
             let sortedAges = Array.from(ages);
             sortedAges.sort();
             if(changeScale)
-                colorScale = generateColorScale(sortedAges);
+                colorScale = generateColorScale(sortedAges, 0, 180, true);
             circles.attr("fill", function(d) {
                 return colorScale(calculateAge(d.matchedItem.birthdate, curDate));
             });
@@ -267,7 +270,7 @@ class PlayerPerf{
                   return heightA[0] - heightB[0];
             });
             if(changeScale){
-                colorScale = generateColorScale(sortedHeights);
+                colorScale = generateColorScale(sortedHeights, 240, 330, false);
             }
             circles.attr("fill", function(d) {
                 return colorScale(d.matchedItem.height);
