@@ -50,9 +50,19 @@ class PlayerPerf{
 
 
         function mouseOver(event, d){
+
+            const prevR = d3.select(this).attr("r");
+            const prevColour = d3.select(this).style("fill");
+            console.log(prevColour);
+            
             d3.select(this)
-            .attr("fill", "red")
-            .attr("r", 6); // Enlarge the circle slightly
+            .transition()
+            .duration(200)
+            .attr("original-size", prevR)
+            .attr("r", 6) // Enlarge the circle slightly
+            .attr("original-colour", prevColour)
+            .style("fill", "orange"); 
+            
         
           // Display the name
           svg.append("text")
@@ -66,9 +76,13 @@ class PlayerPerf{
         }
 
         function mouseOut(event, d){
+            const originalSize = d3.select(this).attr("original-size");
+            const originalColour = d3.select(this).attr("original-colour");
             d3.select(this)
-                .attr("fill", "steelblue")
-                .attr("r", 4); // Restore the original circle size
+            .transition()
+            .duration(200)
+            .style("fill", originalColour)
+            .attr("r", originalSize); // Restore the original circle size
 
             // Remove the name label
             svg.select("#nameLabel").remove();
