@@ -104,6 +104,7 @@ class PlayerPerf{
             svg.selectAll("circle").remove();
             svg.selectAll(".x-axis").remove();
             svg.selectAll(".y-axis").remove();
+            svg.selectAll(".axis-title").remove();
         }
 
         function clearLegend(){
