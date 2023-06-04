@@ -87,6 +87,14 @@
           <li class="active">
             <a
               href="javascript:void(0);"
+              onclick="loadPage('start.html', this, function () {})"
+              >Home</a
+            >
+          </li>
+
+          <li>
+            <a
+              href="javascript:void(0);"
               onclick="loadPage('map.html', this, initMap)"
               >Player Movement</a
             >
@@ -153,7 +161,8 @@
         xhttp.send();
       }
       document.addEventListener("DOMContentLoaded", function () {
-        loadPage("map.html", undefined, initMap);
+        // loadPage("map.html", undefined, initMap);
+        loadPage("start.html", undefined, function () {});
       });
     </script>
   </body>
