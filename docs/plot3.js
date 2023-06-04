@@ -381,14 +381,16 @@ class PlayerPerf{
             const xExtent = d3.extent(playoffArray, d => d.rs_stat);
             const yExtent = d3.extent(playoffArray, d => d.po_stat);
             const maxExtent = Math.max(Math.abs(xExtent[0]), Math.abs(xExtent[1]), Math.abs(yExtent[0]), Math.abs(yExtent[1]));
+            const offset = 1
+            const padding = 50
 
             xScale = d3.scaleLinear()
-                .domain([-maxExtent, maxExtent])
-                .range([margin.left, margin.left + width]);
+                .domain([-maxExtent - offset, maxExtent + offset])
+                .range([margin.left + padding, margin.left + width - padding]);
 
             yScale = d3.scaleLinear()
-                .domain([-maxExtent, maxExtent])
-                .range([margin.top + height, margin.top]);
+                .domain([-maxExtent - offset, maxExtent + offset])
+                .range([margin.top + height - padding, margin.top + padding]);
 
             const xAxis = d3.axisBottom(xScale).ticks(5).tickFormat(d3.format("+"));
             const yAxis = d3.axisLeft(yScale).ticks(5).tickFormat(d3.format("+"));
@@ -422,6 +424,9 @@ class PlayerPerf{
                 .attr("x", width / 2)
                 .attr("y", height + margin.top + margin.bottom - 5)
                 .style("text-anchor", "middle")
+                .style("font-size", "18px")
+                .style("font-weight", "bold")
+                .style("font-style", "italic")
                 .text("Regular Season " + metricSelect.property('value'));
 
             // Add y-axis title
@@ -429,8 +434,11 @@ class PlayerPerf{
                 .attr("class", "axis-title")
                 .attr("transform", "rotate(-90)")
                 .attr("x", -height / 2)
-                .attr("y", -margin.left + 15)
+                .attr("y", -margin.left + 25)
                 .style("text-anchor", "middle")
+                .style("font-size", "18px")
+                .style("font-weight", "bold")
+                .style("font-style", "italic")
                 .text("Playoff " + metricSelect.property('value'));
 
             mouseInteractions();
@@ -601,13 +609,6 @@ class PlayerPerf{
 
     }
 
-    createProjection() {
-        //Define map projection
-        let projection = d3.geoAlbersUsa()
-            .translate([this.svg_width/2, this.svg_height/2])
-            .scale([1000]);
-        return projection;
-    }
 }
 
 function whenDocumentLoaded(action) {
