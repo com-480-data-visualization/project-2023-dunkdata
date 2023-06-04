@@ -305,28 +305,22 @@ class Head2Head {
 
         var nestedGs = d3.selectAll("g > g");
 
-// Iterate through each nested <g> element
-nestedGs.each(function() {
-  var currentG = d3.select(this);
-  var rects = currentG.selectAll("rect");
+        nestedGs.each(function() {
+          var currentG = d3.select(this);
+          var rects = currentG.selectAll("rect");
 
-  // Get the widths of the <rect> elements
-  var widths = rects.nodes().map(function(rect) {
-    return +d3.select(rect).attr("width");
-  });
+          var widths = rects.nodes().map(function(rect) {
+            return +d3.select(rect).attr("width");
+          });
 
-  // Find the index of the maximum width
-  var maxIndex = widths.indexOf(d3.max(widths));
+          var maxIndex = widths.indexOf(d3.max(widths));
 
-  // Update the fill attribute of the rectangle with the maximum width to "gold"
-  d3.select(rects.nodes()[maxIndex]).attr("fill", "gold");
-
-  // Update the fill attribute of the other rectangle(s) to "silver"
-  rects.each(function(d, i) {
-    if (i !== maxIndex) {
-      d3.select(this).attr("fill", "silver");
-    }
-  });
+          d3.select(rects.nodes()[maxIndex]).attr("fill", "gold");
+          rects.each(function(d, i) {
+            if (i !== maxIndex) {
+              d3.select(this).attr("fill", "silver");
+            }
+          });
 });
 
 
