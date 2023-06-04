@@ -104,6 +104,7 @@ class PlayerPerf{
             svg.selectAll("circle").remove();
             svg.selectAll(".x-axis").remove();
             svg.selectAll(".y-axis").remove();
+            svg.selectAll(".axis-title").remove();
         }
 
         function clearLegend(){
@@ -111,27 +112,29 @@ class PlayerPerf{
             legendContainer.selectAll('*').remove();
         }
 
-        function generateRandomColor() {
-            var r = Math.floor(Math.random() * 256);
-            var g = Math.floor(Math.random() * 256);
-            var b = Math.floor(Math.random() * 256);
+        // function generateRandomColor() {
+        //     var r = Math.floor(Math.random() * 256);
+        //     var g = Math.floor(Math.random() * 256);
+        //     var b = Math.floor(Math.random() * 256);
+        //
+        //     return "rgb(" + r + ", " + g + ", " + b + ")";
+        //   }
 
-            return "rgb(" + r + ", " + g + ", " + b + ")";
+        function generateEvenlySpacedColor(cur_idx, total_colors, minHue=0, maxHue=360, reversed=false) {
+          var prop = cur_idx / total_colors;
+          if (reversed) {
+            prop = 1 - prop;
           }
+          return d3.hsv((maxHue - minHue) * prop + minHue, 0.5, 0.9)
+        }
 
-        function generateColorScale(domainValues) {
+        function generateColorScale(domainValues, minHue=0, maxHue=360, reversed=false) {
             let genColorScale;
             var colors = [];
 
             // Generate n distinct colors
             for (var i = 0; i < domainValues.length; i++) {
-                var color = generateRandomColor();
-
-                // Check if the color is already in the array
-                while (colors.includes(color)) {
-                color = generateRandomColor();
-                }
-
+                var color = generateEvenlySpacedColor(i, domainValues.length, minHue, maxHue, reversed);
                 colors.push(color);
             }
 
@@ -141,6 +144,7 @@ class PlayerPerf{
 
             return genColorScale;
         }
+
 
         function createLegend(legendArray){
             var legendContainer = d3.select("#legend-container");
@@ -170,11 +174,28 @@ class PlayerPerf{
                 .on('click', function() {
                     var clickedElem = d3.select(this).select('.legend-color');
                     var clickedColor = clickedElem.style('background-color');
+
+                    // Check if the clicked item is already selected
+                    var isSelected = clickedElem.classed('selected');
+
+                    // Remove the "selected" class from all legend items
+                    d3.selectAll('.legend-item .legend-color').classed('selected', false);
+
+                    // Toggle the selected class on the clicked item
+                    clickedElem.classed('selected', !isSelected);
+
                     // Filter the circles based on the clicked color
-                    circles.style('display', function() {
+                    if (isSelected) {
+                      // Show all groups if the item was previously selected
+                      circles.style('display', 'block');
+                    } else {
+                      // Otherwise, show only the selected group
+                      circles.style('display', function() {
                         var circleColor = d3.select(this).attr('fill');
                         return circleColor === clickedColor ? 'block' : 'none';
-                    });
+                      });
+                    }
+
                 });
         }
 
@@ -209,7 +230,7 @@ class PlayerPerf{
             let sortedAges = Array.from(ages);
             sortedAges.sort();
             if(changeScale)
-                colorScale = generateColorScale(sortedAges);
+                colorScale = generateColorScale(sortedAges, 0, 180, true);
             circles.attr("fill", function(d) {
                 return colorScale(calculateAge(d.matchedItem.birthdate, curDate));
             });
@@ -249,7 +270,7 @@ class PlayerPerf{
                   return heightA[0] - heightB[0];
             });
             if(changeScale){
-                colorScale = generateColorScale(sortedHeights);
+                colorScale = generateColorScale(sortedHeights, 240, 330, false);
             }
             circles.attr("fill", function(d) {
                 return colorScale(d.matchedItem.height);
@@ -293,8 +314,8 @@ class PlayerPerf{
 
             createCategoryDD();
 
-            const xExtent = d3.extent(playoffArray, d => d.stat);
-            const yExtent = d3.extent(playoffArray, d => d.statDiff);
+            const xExtent = d3.extent(playoffArray, d => d.rs_stat);
+            const yExtent = d3.extent(playoffArray, d => d.po_stat);
             const maxExtent = Math.max(Math.abs(xExtent[0]), Math.abs(xExtent[1]), Math.abs(yExtent[0]), Math.abs(yExtent[1]));
 
             xScale = d3.scaleLinear()
@@ -314,8 +335,8 @@ class PlayerPerf{
                 .enter()
                 .append("circle")
                 .attr("name", d => d.player_name)
-                .attr("cx", d => xScale(d.stat))
-                .attr("cy", d => yScale(d.statDiff))
+                .attr("cx", d => xScale(d.rs_stat))
+                .attr("cy", d => yScale(d.po_stat))
                 .attr("r", 4)
                 .attr("fill", "steelblue");
 
@@ -337,7 +358,7 @@ class PlayerPerf{
                 .attr("x", width / 2)
                 .attr("y", height + margin.top + margin.bottom - 5)
                 .style("text-anchor", "middle")
-                .text(metricSelect.property('value'));
+                .text("Regular Season " + metricSelect.property('value'));
 
             // Add y-axis title
             svg.append("text")
@@ -346,7 +367,7 @@ class PlayerPerf{
                 .attr("x", -height / 2)
                 .attr("y", -margin.left + 15)
                 .style("text-anchor", "middle")
-                .text("(Playoff - Regular) Season " + metricSelect.property('value'));
+                .text("Playoff " + metricSelect.property('value'));
 
             mouseInteractions();
         }
@@ -364,7 +385,9 @@ class PlayerPerf{
                 return acc;
             }, {});
 
-            const playoffPlayers = new Set(yearData.filter(d => d.season_type === "PO").map(obj => obj.player_id));
+            const playoffPlayers = new Set(yearData.filter(d => d.season_type === "PO")
+                                                   .filter(d => d.mp >= 50)
+                                                   .map(obj => obj.player_id));
 
             const postSeasonPlayers = Object.values(aggregatedData)
                 .filter(d => playoffPlayers.has(d.player_id))
@@ -379,15 +402,16 @@ class PlayerPerf{
             playoffData = postSeasonPlayers.reduce((acc, entry) => {
                 const key = entry.player_id;
                 if (!acc[key]) {
-                    acc[key] = { player_name: entry.player_name, player_id: entry.player_id, team: entry.team, stat: 0, statDiff: 0};
+                    acc[key] = { player_name: entry.player_name, player_id: entry.player_id, team: entry.team, po_stat: 0, rs_stat: 0, diff_stat: 0};
                   }
                 if(entry.season_type == "PO"){
-                    acc[key].stat += entry.stat; // storing the weighted sum here
-                    acc[key].statDiff += entry.stat;
+                    acc[key].po_stat += entry.stat; // storing the playoff stat
+                    acc[key].diff_stat += entry.stat;
                     acc[key].team = entry.team; // just to ensure the final team selected for a player is the PO team
                 }
                 else
-                    acc[key].statDiff -= entry.stat;
+                    acc[key].rs_stat -= entry.stat // storing the rs_stat
+                    acc[key].diff_stat -= entry.stat;
 
                   return acc;
             }, {});
