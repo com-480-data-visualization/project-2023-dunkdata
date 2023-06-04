@@ -112,6 +112,19 @@ class NBAMap {
     return projection;
   }
 
+  calculateControlPoints(source, target, offset) {
+  const dx = target[0] - source[0];
+  const dy = target[1] - source[1];
+  const length = Math.sqrt(dx * dx + dy * dy);
+  const normal = [-dy / length, dx / length];
+  const controlPointOffset = offset * (Math.random() > 0.5 ? 1 : -1);
+  const controlPoint = [
+    ((+source[0] + +target[0]) / 2) + (controlPointOffset * normal[0]),
+    ((+source[1] + +target[1]) / 2) + (controlPointOffset * normal[1]),
+  ];
+  return controlPoint;
+}
+
   getGeoGenerator(projection) {
     return d3.geoPath().projection(projection);
   }
@@ -322,29 +335,47 @@ class NBAMap {
     const pathGenerator = self.getGeoGenerator(projection);
 
     const features = journeyCoords.flatMap((journey, index) => {
-      return journey.slice(0, -1).map((coord, innerIndex) => ({
-        type: "Feature",
-        geometry: {
-          type: "LineString",
-          coordinates: [coord, journey[innerIndex + 1]],
-        },
-        properties: {
-          player: sortedPlayerNames[index],
-          destTeamId: journey[innerIndex + 1][2],
-        },
-      }));
+      return journey.slice(0, -1).map((coord, innerIndex) => {
+        const controlPoint = self.calculateControlPoints(
+          projection(coord.map(x=>+x)),
+          projection(journey[innerIndex + 1].map(x=>+x)),
+          75
+        );
+        console.log(controlPoint)
+
+        return {
+          type: "Feature",
+          geometry: {
+            type: "Path",
+            coordinates: [projection(coord.map(x=>+x)), controlPoint, projection(journey[innerIndex + 1].map(x=>+x))],
+          },
+          properties: {
+            player: sortedPlayerNames[index],
+            destTeamId: journey[innerIndex + 1][2],
+          },
+        };
+      });
     });
 
     let journeyPaths = svg
-      .selectAll(".journey-path")
-      .data(features)
-      .join("path")
-      .attr("class", "journey-path")
-      .attr("id", (d, i) => `journey-path-${i}`)
-      .attr("d", pathGenerator)
-      .style("fill", "none")
-      .style("stroke", "gray")
-      .style("stroke-width", DEFAULTSTROKEWIDTH);
+    .selectAll(".journey-path")
+    .data(features)
+    .join("path")
+    .attr("class", "journey-path")
+    .attr("id", (d, i) => `journey-path-${i}`)
+    .attr("d", (d) => {
+      var [start, control, end] = d.geometry.coordinates;
+      // start = start.map(x=>+x);
+      // end = end.map(x=>+x);
+      // console.log([start.map(x=>+x), control.map(x=>+x), end.map(x=>+x)]);
+      // start = projection(start.map(x=>+x))
+      // end = projection(end.map(x=>+x))
+
+      return `M${start[0]},${start[1]} Q${control[0]},${control[1]} ${end[0]},${end[1]}`;
+    })
+    .style("fill", "none")
+    .style("stroke", "gray")
+    .style("stroke-width", DEFAULTSTROKEWIDTH);
 
     journeyPaths
       .on(
@@ -382,7 +413,7 @@ class NBAMap {
     let delay = 0;
     selectedJourneyPathFeatures.forEach((feature) => {
       setTimeout(() => {
-        self.animatePath(self, feature, projection, dur);
+        self.animatePath(self, feature, projection, dur, journeyPaths);
       }, delay);
       delay += dur;
     });
@@ -392,9 +423,6 @@ class NBAMap {
 
     // Select the player container to create the player card
     var playerContainer = d3.select("#player-container");
-
-    // Clear existing contents
-    playerContainer.html("");
 
     // Create a box to enclose the player card
     const playerCard = playerContainer
@@ -425,13 +453,22 @@ class NBAMap {
       .text(`Pre-NBA affiliation: ${foundPlayer.last_affiliation}`);
   }
 
-  animatePath(self, feature, projection, dur) {
+  animatePath(self, feature, projection, dur, journeyPaths) {
     let pathGenerator = self.getGeoGenerator(projection);
     let path = self.svg
       .append("path")
       .datum(feature)
       .attr("class", "animated-path")
-      .attr("d", pathGenerator)
+      .attr("d", (d) => {
+        var [start, control, end] = d.geometry.coordinates;
+        // start = start.map(x=>+x);
+        // end = end.map(x=>+x);
+        // console.log([start.map(x=>+x), control.map(x=>+x), end.map(x=>+x)]);
+        // start = projection(start.map(x=>+x))
+        // end = projection(end.map(x=>+x))
+
+        return `M${start[0]},${start[1]} Q${control[0]},${control[1]} ${end[0]},${end[1]}`;
+      })
       .style("fill", "none")
       .style("stroke", "green")
       .style("stroke-width", 2);
@@ -450,8 +487,9 @@ class NBAMap {
       .remove();
 
     // Get the coordinates of the destination point
-    let pointCoords = feature.geometry.coordinates[1];
-    let projected = projection(pointCoords);
+    let projected = feature.geometry.coordinates[2];
+    // let projected = projection(pointCoords);
+
     const imageSize = 60; // Adjust the size of the logo image
 
     self.svg
