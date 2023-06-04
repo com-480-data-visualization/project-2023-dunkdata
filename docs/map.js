@@ -113,17 +113,17 @@ class NBAMap {
   }
 
   calculateControlPoints(source, target, offset) {
-    const dx = target[0] - source[0];
-    const dy = target[1] - source[1];
-    const length = Math.sqrt(dx * dx + dy * dy);
-    const normal = [-dy / length, dx / length];
-    const controlPointOffset = offset * (Math.random() > 0.5 ? 1 : -1);
-    const controlPoint = [
-      (+source[0] + +target[0]) / 2 + controlPointOffset * normal[0],
-      (+source[1] + +target[1]) / 2 + controlPointOffset * normal[1],
-    ];
-    return controlPoint;
-  }
+  const dx = target[0] - source[0];
+  const dy = target[1] - source[1];
+  const length = Math.sqrt(dx * dx + dy * dy);
+  const normal = [-dy / length, dx / length];
+  const controlPointOffset = (offset + (Math.random() / 10)) * length;// * (pointIndex % 2 ? 1 : -1);
+  const controlPoint = [
+    ((+source[0] + +target[0]) / 2) + (controlPointOffset * normal[0]),
+    ((+source[1] + +target[1]) / 2) + (controlPointOffset * normal[1]),
+  ];
+  return controlPoint;
+}
 
   getGeoGenerator(projection) {
     return d3.geoPath().projection(projection);
@@ -336,11 +336,10 @@ class NBAMap {
     const features = journeyCoords.flatMap((journey, index) => {
       return journey.slice(0, -1).map((coord, innerIndex) => {
         const controlPoint = self.calculateControlPoints(
-          projection(coord.map((x) => +x)),
-          projection(journey[innerIndex + 1].map((x) => +x)),
-          75
+          projection(coord.map(x=>+x)),
+          projection(journey[innerIndex + 1].map(x=>+x)),
+          0.35,
         );
-        console.log(controlPoint);
 
         return {
           type: "Feature",

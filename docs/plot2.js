@@ -549,7 +549,7 @@ class Head2Head{
         }
 
         function createLegend(){
-            const colorRange = ["red", "yellow", "green"];
+            const colorRange = ["green", "red"];
 
             // Create a linear gradient
             const gradient = svg.append("defs")
@@ -646,7 +646,7 @@ class Head2Head{
             // Scale for the colour
             const colorScale = d3.scaleLinear()
             .domain(scoreExtent)
-            .range(["red", "yellow", "green"]);
+            .range(["red", "green"]);
 
             createLegend();
 
