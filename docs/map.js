@@ -1,5 +1,5 @@
 const DEFAULTSTROKEWIDTH = 0.5;
-const DEFAULTIMAGESIZE = 40;
+const DEFAULTIMAGESIZE = 30;
 
 class NBAMap {
   constructor(svg_id, div_id) {
@@ -58,8 +58,6 @@ class NBAMap {
   }
 
   createCircles(svg, data, projection) {
-    const imageSize = DEFAULTIMAGESIZE; // Adjust the size of the logo image
-
     // Create image elements and tooltip labels
     const images = svg
       .selectAll("image")
@@ -67,15 +65,16 @@ class NBAMap {
       .join("image")
       .attr(
         "x",
-        (d) => projection([d.longitude, d.latitude])[0] - imageSize / 2
+        (d) => projection([d.longitude, d.latitude])[0] - DEFAULTIMAGESIZE / 2
       )
       .attr(
         "y",
-        (d) => projection([d.longitude, d.latitude])[1] - imageSize / 2
+        (d) => projection([d.longitude, d.latitude])[1] - DEFAULTIMAGESIZE / 2
       )
-      .attr("class", (d) => `logo team-${d.id}`)
-      .attr("width", imageSize)
-      .attr("height", imageSize)
+      .attr("id", (d) => d.id)
+      .attr("width", DEFAULTIMAGESIZE)
+      .attr("height", DEFAULTIMAGESIZE)
+      .attr("class", (d) => `map-logo team-${d.id}`)
       .attr("xlink:href", (d) => {
         return `https://cdn.nba.com/logos/nba/${d.id}/global/L/logo.svg`; // Replace with the NBA logo path or URL for each team
       })
@@ -85,19 +84,23 @@ class NBAMap {
 
     images
       .on("mouseover", (event, d) => {
-        d3.select(event.currentTarget)
+        const image = d3.select(event.currentTarget);
+        if (image.attr("id") === "selected-team") return null;
+        image
           .transition()
           .duration(200)
-          .attr("width", imageSize + 10)
-          .attr("height", imageSize + 10)
+          .attr("width", DEFAULTIMAGESIZE + 10)
+          .attr("height", DEFAULTIMAGESIZE + 10)
           .style("opacity", 1);
       })
       .on("mouseout", (event, d) => {
-        d3.select(event.currentTarget)
+        const image = d3.select(event.currentTarget);
+        if (image.attr("id") === "selected-team") return null;
+        image
           .transition()
           .duration(200)
-          .attr("width", imageSize)
-          .attr("height", imageSize)
+          .attr("width", DEFAULTIMAGESIZE)
+          .attr("height", DEFAULTIMAGESIZE)
           .style("opacity", 0.8);
         svg.select("#tooltip").remove();
       });
@@ -224,6 +227,7 @@ class NBAMap {
       );
       const selectedTeam = d3.select(this).property("value");
       if (selectedTeam === "--Team--") {
+        self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
         // d3.select("#selected-team")
         //   .attr("width", DEFAULTIMAGESIZE)
         //   .attr("height", DEFAULTIMAGESIZE)
@@ -242,27 +246,17 @@ class NBAMap {
       const projected = projection(selectedTeamCoords);
 
       if (!projected) return null;
-      d3.select("#selected-team").remove();
-      // reset the size of the team logo image
-      // d3.select("#selected-team")
-      //   .attr("width", DEFAULTIMAGESIZE)
-      //   .attr("height", DEFAULTIMAGESIZE)
-      //   .attr("id", (d) => d.id);
+      self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
 
-      const imageSize = 70;
+      const imageSize = 60;
       // Modify the existing team logo image
-      // d3.selectAll(".team-logo")
-      //   .filter((d) => d.nickname === selectedTeam)
-      svg
-        .append("image")
+      d3.selectAll(".map-logo")
+        .filter((d) => d.nickname === selectedTeam)
         .attr("x", projected[0] - imageSize / 2)
         .attr("y", projected[1] - imageSize / 2)
         .attr("id", "selected-team")
         .attr("width", imageSize)
-        .attr("height", imageSize)
-        .attr("xlink:href", () => {
-          return `https://cdn.nba.com/logos/nba/${selectedTeamData.id}/global/L/logo.svg`;
-        });
+        .attr("height", imageSize);
 
       const selectedSeasonAndTeamData = self.filterJourneyDataByTeam(
         selectedSeasonData,
@@ -297,6 +291,22 @@ class NBAMap {
         playerSelect
       );
     };
+  }
+
+  resetDefaultTeamLogo(logoElement, projection, imageSize = DEFAULTIMAGESIZE) {
+    logoElement
+      .attr(
+        "x",
+        (d) => projection([d.longitude, d.latitude])[0] - imageSize / 2
+      )
+      .attr(
+        "y",
+        (d) => projection([d.longitude, d.latitude])[1] - imageSize / 2
+      )
+      .attr("id", (d) => d.id)
+      .attr("width", imageSize)
+      .attr("height", imageSize)
+      .style("opacity", 0.8);
   }
 
   createPlayerSelectHandlerDD(self, svg, projection) {
@@ -370,9 +380,7 @@ class NBAMap {
       return 0;
     });
     if (selectedPlayer === "--Player--") return null;
-    // call animatePath on the selected player
-    // find the path of the selected player
-    // for each feature in the path, call animatePath
+    // call animatePath on the selected player, for each feature in the path, call animatePath
     const selectedJourneyPath = journeyPaths.filter((d, i) => {
       return d.properties.player === selectedPlayer;
     });
@@ -416,8 +424,11 @@ class NBAMap {
     let projected = projection(pointCoords);
     const imageSize = 60; // Adjust the size of the logo image
 
-    self.svg
-      .append("image")
+    const prevImg = d3.select(`.team-${feature.properties.destTeamId}`);
+    const prevImgSize = prevImg.attr("width");
+
+    let img = d3
+      .select(`.team-${feature.properties.destTeamId}`)
       .attr("x", projected[0] - imageSize / 2)
       .attr("y", projected[1] - imageSize / 2)
       .attr("width", imageSize)
@@ -431,8 +442,9 @@ class NBAMap {
       .style("opacity", 1)
       .transition()
       .duration(dur * 2)
-      .style("opacity", 0)
-      .remove();
+      .style("opacity", 0);
+
+    self.resetDefaultTeamLogo(img, projection, prevImgSize);
   }
 
   createMouseClickHandlerJourneyPath(self, svg, playerSelect, projection) {
