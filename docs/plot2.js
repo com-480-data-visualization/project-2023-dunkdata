@@ -294,7 +294,7 @@ class Head2Head {
         .attr("y", (d, i) => yScale.bandwidth() / 2)
         .attr("width", (d) => Math.abs(xScale(d) / 2))
         .attr("height", yScale.bandwidth() / 2)
-        .attr("fill", (d, i) => (i === 0 ? "steelblue" : "orange"))
+        .attr("fill", (d, i) => (i === 0 ? "green" : "red"))
         .attr("x", (d, i) => {
           if (i === 1) {
             return -Math.abs(xScale(d)) / 2 + width / 2 - offset / 2;
@@ -302,6 +302,33 @@ class Head2Head {
             return width / 2 + offset / 2;
           }
         });
+
+        var nestedGs = d3.selectAll("g > g");
+
+// Iterate through each nested <g> element
+nestedGs.each(function() {
+  var currentG = d3.select(this);
+  var rects = currentG.selectAll("rect");
+
+  // Get the widths of the <rect> elements
+  var widths = rects.nodes().map(function(rect) {
+    return +d3.select(rect).attr("width");
+  });
+
+  // Find the index of the maximum width
+  var maxIndex = widths.indexOf(d3.max(widths));
+
+  // Update the fill attribute of the rectangle with the maximum width to "gold"
+  d3.select(rects.nodes()[maxIndex]).attr("fill", "gold");
+
+  // Update the fill attribute of the other rectangle(s) to "silver"
+  rects.each(function(d, i) {
+    if (i !== maxIndex) {
+      d3.select(this).attr("fill", "silver");
+    }
+  });
+});
+
 
       svg
         .selectAll(".stat-label")
