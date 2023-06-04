@@ -40,9 +40,9 @@ class NBAMap {
         });
 
       Promise.all([
-        d3.csv("team.csv"),
-        d3.csv("journey.csv"),
-        d3.csv("common_player_info.csv"),
+        d3.csv("datasets/team.csv"),
+        d3.csv("datasets/journey.csv"),
+        d3.csv("datasets/common_player_info.csv"),
       ]).then((values) => {
         let teamData = values[0];
         let journeyData = values[1];
