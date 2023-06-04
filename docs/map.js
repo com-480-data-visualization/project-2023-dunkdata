@@ -185,6 +185,7 @@ class NBAMap {
       if (selectedSeasonNum === -1) {
         d3.selectAll(".journey-path").remove();
         self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
+        d3.select("#player-container").html("");
         return null;
       }
       const selectedSeasonData = self.filterJourneyDataBySeason(
@@ -234,8 +235,7 @@ class NBAMap {
       const selectedTeam = d3.select(this).property("value");
       if (selectedTeam === "--Team--") {
         self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
-        var playerContainer = d3.select("#player-container");
-        playerContainer.html("");
+        d3.select("#player-container").html("");
         return null;
       }
       const selectedTeamData = self.filterTeamDataByNickname(
@@ -250,6 +250,7 @@ class NBAMap {
 
       if (!projected) return null;
       self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
+      d3.select("#player-container").html("");
 
       const imageSize = 60;
       // Modify the existing team logo image
@@ -275,9 +276,6 @@ class NBAMap {
 
       self.populateDropdown(playerSelect, sortedPlayerNames);
       playerSelect.property("value", sortedPlayerNames[0]);
-
-      var playerContainer = d3.select("#player-container");
-      playerContainer.html("");
 
       // this is a list of journeys of each player in the selected team
       const journeys = self.getPlayerJourneyData(
@@ -346,7 +344,11 @@ class NBAMap {
           type: "Feature",
           geometry: {
             type: "Path",
-            coordinates: [projection(coord.map(x=>+x)), controlPoint, projection(journey[innerIndex + 1].map(x=>+x))],
+            coordinates: [
+              projection(coord.map((x) => +x)),
+              controlPoint,
+              projection(journey[innerIndex + 1].map((x) => +x)),
+            ],
           },
           properties: {
             player: sortedPlayerNames[index],
@@ -357,24 +359,24 @@ class NBAMap {
     });
 
     let journeyPaths = svg
-    .selectAll(".journey-path")
-    .data(features)
-    .join("path")
-    .attr("class", "journey-path")
-    .attr("id", (d, i) => `journey-path-${i}`)
-    .attr("d", (d) => {
-      var [start, control, end] = d.geometry.coordinates;
-      // start = start.map(x=>+x);
-      // end = end.map(x=>+x);
-      // console.log([start.map(x=>+x), control.map(x=>+x), end.map(x=>+x)]);
-      // start = projection(start.map(x=>+x))
-      // end = projection(end.map(x=>+x))
+      .selectAll(".journey-path")
+      .data(features)
+      .join("path")
+      .attr("class", "journey-path")
+      .attr("id", (d, i) => `journey-path-${i}`)
+      .attr("d", (d) => {
+        var [start, control, end] = d.geometry.coordinates;
+        // start = start.map(x=>+x);
+        // end = end.map(x=>+x);
+        // console.log([start.map(x=>+x), control.map(x=>+x), end.map(x=>+x)]);
+        // start = projection(start.map(x=>+x))
+        // end = projection(end.map(x=>+x))
 
-      return `M${start[0]},${start[1]} Q${control[0]},${control[1]} ${end[0]},${end[1]}`;
-    })
-    .style("fill", "none")
-    .style("stroke", "gray")
-    .style("stroke-width", DEFAULTSTROKEWIDTH);
+        return `M${start[0]},${start[1]} Q${control[0]},${control[1]} ${end[0]},${end[1]}`;
+      })
+      .style("fill", "none")
+      .style("stroke", "gray")
+      .style("stroke-width", DEFAULTSTROKEWIDTH);
 
     journeyPaths
       .on(
@@ -422,6 +424,7 @@ class NBAMap {
 
     // Select the player container to create the player card
     var playerContainer = d3.select("#player-container");
+    playerContainer.html("");
 
     // Create a box to enclose the player card
     const playerCard = playerContainer
