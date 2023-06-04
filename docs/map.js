@@ -128,15 +128,9 @@ class NBAMap {
   }
 
   createDropdown(self, svg, teamData, journeyData, projection) {
-    const seasonSelect = d3
-      .select("#map-season-select")
-      .attr("id", "season-select");
-
-    const teamSelect = d3.select("#map-team-select").attr("id", "team-select");
-
-    const playerSelect = d3
-      .select("#map-player-select")
-      .attr("id", "player-select");
+    const seasonSelect = d3.select("#map-season-select");
+    const teamSelect = d3.select("#map-team-select");
+    const playerSelect = d3.select("#map-player-select");
 
     seasonSelect.on(
       "change",
@@ -428,7 +422,7 @@ class NBAMap {
     playerCard
       .append("div")
       .attr("class", "last-affiliation")
-      .text(`Pre-NBA affiliation/hometown: ${foundPlayer.last_affiliation}`);
+      .text(`Pre-NBA affiliation: ${foundPlayer.last_affiliation}`);
   }
 
   animatePath(self, feature, projection, dur) {
