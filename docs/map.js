@@ -391,6 +391,36 @@ class NBAMap {
     const found = self.commonPlayerData.find(
       (d) => d.display_first_last === selectedPlayer
     );
+
+    // Select the player container to create the player card
+    var playerContainer = d3.select("#player-container");
+
+    // Clear existing contents
+    playerContainer.html("");
+
+    // Create a box to enclose the player card
+    const player_card = playerContainer.append("div")
+        .attr("class", "player-card");
+
+    player_card.append("img")
+        .attr("class", "player-image")
+        .attr("src", "https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/" + found.person_id + ".png" )
+        // in case http request failed, which it does for most older players, don't display any image
+        .on("error", function() {
+          d3.select(this).style("display", "none");
+        })
+
+    // Append the player name
+    player_card.append("div")
+        .attr("class", "player-name")
+        .text(selectedPlayer);
+
+    // Append the stats
+    player_card.append("div")
+        .attr("class", "last-affiliation")
+        .text(found.last_affiliation);
+
+
     console.log(found.person_id);
     console.log(found.last_affiliation);
   }

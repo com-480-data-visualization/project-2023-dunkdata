@@ -1,10 +1,76 @@
-<p>Player's career history.</p>
-<div id="map-container">
-  <select id="map-season-select" style="width: 300px; float: left"></select>
-  <select
-    id="map-team-select"
-    style="width: 300px; float: left; margin-left: 65px"
-  ></select>
-  <select id="map-player-select" style="width: 300px; float: right"></select>
-  <svg id="map" viewBox="0 0 960 500" width="90%"></svg>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Player History</title>
+    <style>
+        #map-viz {
+            width: 100%;
+            display: flex;
+        }
+
+        #player-container{
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+
+          .player-card {
+            border: 1px solid lightgrey;
+            background-color: #f9f9f9;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            line-height: 2;
+          }
+
+          .player-name {
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+          }
+
+          .last-affiliation {
+            font-style: italic;
+            font-size: 14px;
+            text-align: center;
+          }
+
+          .player-image {
+            width: 90%;
+            display: block;
+            margin: 0 auto;
+          }
+
+        .viz-column {
+          flex: 1;
+          padding: 10px;
+        }
+
+        }
+    </style>
+</head>
+  <body>
+
+
+  <p>Player's career history.</p>
+  <div id="map-container">
+    <select id="map-season-select" style="width: 300px; float: left"></select>
+    <select
+      id="map-team-select"
+      style="width: 300px; float: left; margin-left: 65px"
+    ></select>
+    <select id="map-player-select" style="width: 300px; float: right"></select>
+
+    <div id="map-viz">
+      <svg id="map" viewBox="0 0 960 500" width="85%"></svg>
+      <div class="viz-column" id="player-container" style="width: 15%"></div>
+    </div>
+
+  </div>
+
+  </body>
+</html>
