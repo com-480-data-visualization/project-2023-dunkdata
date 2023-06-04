@@ -14,10 +14,30 @@
     <title>Plot 2</title>
   </head>
   <body>
-    <p>
-      This visualization (sketch) shows both head-to-head and home vs away
-      performance for a given team.
-    </p>
+    <div>
+      <p>
+        This visualization shows both head-to-head and home vs away performance for a given team since the 2016-17 season. After selecting a
+        team from the carousel, you can select a metric from the drop down box to the your selectd team's performance at each away
+        location throughout the NBA.
+      </p>
+      <p>
+        The circles are colored on a scale according to the team's relative performance at different
+        locations, with a teams best performance in the given metric being shaded green and their worst performing venue being
+        shaded red. The size of the circles also indicates the team's win percentage at the given away location. Thus you can see at a glance
+        which away venues the team is more successful at, and whether or not the given metric is correlated with this.
+      </p>
+
+      <p>
+        When you hover on a circle in the map you can get a more detailed view of the team's performance at that location, including
+        their record in the last 5 games, and the actual values of the selected metric and win percentage at this location.
+      </p>
+      <p>
+        Additionally, clicking
+        on a circle brings up some plots to show the head-to-head performance of the two selected teams, both in home and away games. The
+        team which performs better in each metric at a given venue is highlighted in yellow, allowing you to gauge at a glance if there are any
+        trends in how teams perform in a specific head-to-head matchup, both at home and away.
+      </p>
+    </div>
 
     <div id="h2hcontainer">
       <div>
@@ -68,7 +88,7 @@
       </tbody>
     </table>
   </div> -->
-    <!-- 
+    <!--
   <div class="table-container">
     <table id="statsTableHome">
       <thead>
