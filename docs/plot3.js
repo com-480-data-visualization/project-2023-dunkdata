@@ -77,6 +77,15 @@ class PlayerPerf{
         const infoBox = playerContainer.append("div")
             .attr("class", "player-card");
 
+        var playerId = getPlayerId(d.player_name);
+        // if the player id is successfully recovered, add the player headshot
+        if (playerId !== null){
+          // Append the player image
+          infoBox.append("img")
+              .attr("class", "player-image")
+              .attr("src", "https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/" + playerId + ".png" );
+        }
+
         // Append the player name
         infoBox.append("div")
             .attr("class", "player-name")
@@ -93,10 +102,6 @@ class PlayerPerf{
             .attr("class", "player-stat")
             .text("Playoffs: " + roundToTwoDecimals(d.po_stat));
 
-        // Append the player image
-        infoBox.append("img")
-            .attr("class", "player-image")
-            .attr("src", "logos/ATL_2023.png");
 
         // // Append a new div for the player name
         // playerName = playerContainer
@@ -227,6 +232,14 @@ class PlayerPerf{
                     }
 
                 });
+        }
+
+        function getPlayerId(full_name) {
+          const player = playerData.find((player) => player.display_first_last === full_name);
+          if (player) {
+            return player.person_id;
+          }
+          return null; // Return null if no player is found. shouldn't happen tho since every player is successfully joined using this ds
         }
 
         function calculateAge(birthdate, currentDate) {
@@ -562,7 +575,7 @@ class PlayerPerf{
         Promise.all([
             d3.csv("modern_RAPTOR_by_team.csv"),
             d3.csv("latest_RAPTOR_by_team.csv"),
-            d3.csv("common_player_info.csv")
+            d3.csv("common_player_info.csv"),
         ]).then(function(values) {
             const modernData = values[0];
             const latestData = values[1];
