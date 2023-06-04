@@ -40,9 +40,9 @@ class NBAMap {
         });
 
       Promise.all([
-        d3.csv("team.csv"),
-        d3.csv("journey.csv"),
-        d3.csv("common_player_info.csv"),
+        d3.csv("datasets/team.csv"),
+        d3.csv("datasets/journey.csv"),
+        d3.csv("datasets/common_player_info.csv"),
       ]).then((values) => {
         let teamData = values[0];
         let journeyData = values[1];
@@ -141,15 +141,9 @@ class NBAMap {
   }
 
   createDropdown(self, svg, teamData, journeyData, projection) {
-    const seasonSelect = d3
-      .select("#map-season-select")
-      .attr("id", "season-select");
-
-    const teamSelect = d3.select("#map-team-select").attr("id", "team-select");
-
-    const playerSelect = d3
-      .select("#map-player-select")
-      .attr("id", "player-select");
+    const seasonSelect = d3.select("#map-season-select");
+    const teamSelect = d3.select("#map-team-select");
+    const playerSelect = d3.select("#map-player-select");
 
     seasonSelect.on(
       "change",
@@ -240,6 +234,8 @@ class NBAMap {
       const selectedTeam = d3.select(this).property("value");
       if (selectedTeam === "--Team--") {
         self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
+        var playerContainer = d3.select("#player-container");
+        playerContainer.html("");
         return null;
       }
       const selectedTeamData = self.filterTeamDataByNickname(
@@ -279,6 +275,9 @@ class NBAMap {
 
       self.populateDropdown(playerSelect, sortedPlayerNames);
       playerSelect.property("value", sortedPlayerNames[0]);
+
+      var playerContainer = d3.select("#player-container");
+      playerContainer.html("");
 
       // this is a list of journeys of each player in the selected team
       const journeys = self.getPlayerJourneyData(
@@ -418,7 +417,7 @@ class NBAMap {
       }, delay);
       delay += dur;
     });
-    const found = self.commonPlayerData.find(
+    const foundPlayer = self.commonPlayerData.find(
       (d) => d.display_first_last === selectedPlayer
     );
 
@@ -426,30 +425,32 @@ class NBAMap {
     var playerContainer = d3.select("#player-container");
 
     // Create a box to enclose the player card
-    const player_card = playerContainer.append("div")
-        .attr("class", "player-card");
+    const playerCard = playerContainer
+      .append("div")
+      .attr("class", "player-card");
 
-    player_card.append("img")
-        .attr("class", "player-image")
-        .attr("src", "https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/" + found.person_id + ".png" )
-        // in case http request failed, which it does for most older players, don't display any image
-        .on("error", function() {
-          d3.select(this).style("display", "none");
-        })
+    playerCard
+      .append("img")
+      .attr("class", "player-image")
+      .attr(
+        "src",
+        "https://cdn.nba.com/headshots/nba/latest/260x190/" +
+          foundPlayer.person_id +
+          ".png"
+      )
+      // in case http request failed, which it does for most older players, don't display any image
+      .on("error", function () {
+        d3.select(this).style("display", "none");
+      });
 
     // Append the player name
-    player_card.append("div")
-        .attr("class", "player-name")
-        .text(selectedPlayer);
+    playerCard.append("div").attr("class", "player-name").text(selectedPlayer);
 
     // Append the stats
-    player_card.append("div")
-        .attr("class", "last-affiliation")
-        .text(found.last_affiliation);
-
-
-    console.log(found.person_id);
-    console.log(found.last_affiliation);
+    playerCard
+      .append("div")
+      .attr("class", "last-affiliation")
+      .text(`Pre-NBA affiliation: ${foundPlayer.last_affiliation}`);
   }
 
   animatePath(self, feature, projection, dur, journeyPaths) {
