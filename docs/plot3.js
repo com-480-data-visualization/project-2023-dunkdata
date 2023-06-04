@@ -89,7 +89,7 @@ class PlayerPerf{
         // Append the player name
         infoBox.append("div")
             .attr("class", "player-name")
-            .text(d.player_name);
+            .text(d.player_name + " (" + d.team + ")");
 
         // Append the stats
         infoBox.append("div")
@@ -180,8 +180,18 @@ class PlayerPerf{
             return genColorScale;
         }
 
+        function getTeamLogo(team) {
+          if (team === "BRK"){
+            team = "BKN";
+          } else if (team === "PHO") {
+            team = "PHX";
+          }
+          return "logos/" + team + "_2023.png";
+        }
 
-        function createLegend(legendArray){
+
+
+        function createLegend(legendArray, isTeam=false){
             var legendContainer = d3.select("#legend-container");
             legendContainer.selectAll('*').remove();
 
@@ -203,6 +213,13 @@ class PlayerPerf{
             legendItems.append("div")
                 .style("font-size", "14px")
                 .text(function(d) { return d; });
+
+              if (isTeam){
+                // Add team images to legend items
+                legendItems.append("img")
+                  .attr("class", "team-logo")
+                  .attr("src", getTeamLogo);
+              }
 
 
             d3.selectAll('.legend-item')
@@ -241,6 +258,7 @@ class PlayerPerf{
           }
           return null; // Return null if no player is found. shouldn't happen tho since every player is successfully joined using this ds
         }
+
 
         function calculateAge(birthdate, currentDate) {
 
@@ -293,7 +311,7 @@ class PlayerPerf{
             circles.attr("fill", function(d) {
                 return colorScale(d.team);
             });
-            createLegend(sortedTeams);
+            createLegend(sortedTeams, true);
         }
 
         function handleHeight(changeScale){
