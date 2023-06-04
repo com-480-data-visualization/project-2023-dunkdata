@@ -111,7 +111,7 @@ class Head2Head{
             }
 
             attributes.forEach(attribute => {
-                averageStats[attribute] = [(sumStatsHome[attribute+"_home"] / countStatsHome[attribute+"_home"]).toFixed(2), (sumStatsAway[attribute+"_away"] / countStatsAway[attribute+"_away"]).toFixed(2)];
+                averageStats[attribute] = [(sumStatsHome[attribute+"_home"] / countStatsHome[attribute+"_home"]).toFixed(1), (sumStatsAway[attribute+"_away"] / countStatsAway[attribute+"_away"]).toFixed(1)];
             });
 
             if(away)
@@ -407,14 +407,11 @@ class Head2Head{
         function mouseOver(event, d){
 
             // Get previous values to restore for mouseOut
-            const prevR = d3.select(this).attr("r");
             const prevColour = d3.select(this).style("fill");
 
             d3.select(this)
                 .transition()
                 .duration(200)
-                .attr("original-size", prevR)
-                .attr("r", 10)
                 .attr("original-colour", prevColour)
                 .style("fill", "orange");
             let projected = projection([d.longitude, d.latitude]);
@@ -469,19 +466,16 @@ class Head2Head{
         }
 
         function mouseOut(event, d){
-            const originalSize = d3.select(this).attr("original-size");
             const originalColour = d3.select(this).attr("original-colour");
             d3.select(this)
             .transition()
             .duration(200)
-            .attr("r", originalSize)
             .style("fill", originalColour);
             svg.select("#tooltip").remove();
             d3.selectAll('text#tooltip').remove();
             d3.selectAll('image').remove();
             const card = document.querySelector('.card');
             card.style.visibility = 'hidden';
-
         }
 
         function mouseClick(event, d){
@@ -527,11 +521,6 @@ class Head2Head{
                 .style("stroke-width", 0.25)
                 .style("opacity", 0.75);
 
-            // circles.append("title")
-            //     .text(function(d) {
-            //         return d.nickname + " (" + d.city+ ")";
-            //     });
-
             mouseInteractions();
         }
 
@@ -544,7 +533,7 @@ class Head2Head{
         }
 
         function createLegend(){
-            const colorRange = ["red", "blue"];
+            const colorRange = ["red", "yellow", "green"];
 
             // Create a linear gradient
             const gradient = svg.append("defs")
@@ -631,7 +620,7 @@ class Head2Head{
             // Scale for the radius
             const radiusScale = d3.scaleLinear()
             .domain(radiusExtent)
-            .range([1, 10]);
+            .range([5, 20]);
 
             const scores = Object.values(aggMetric).map(d => d.perf_away);
             const scoreExtent = d3.extent(scores); // gets the range of scores for the scales
@@ -640,25 +629,26 @@ class Head2Head{
             // Scale for the colour
             const colorScale = d3.scaleLinear()
             .domain(scoreExtent)
-            .range(['blue', 'red']);
+            .range(["red", "yellow", "green"]);
 
             createLegend();
 
             circles.attr('val', circle => {
                 if(aggMetric.hasOwnProperty(circle.id))
-                    return aggMetric[circle.id].perf_away.toFixed(2);
+                    return aggMetric[circle.id].perf_away.toFixed(1);
             });
 
             circles.attr('r', circle => {
                 const id = circle.id;
                 if(win_pct.hasOwnProperty(id))
                     return radiusScale(win_pct[id]);
-            });
-
+            })
+            .style('opacity', 0.5);
+            
             circles.attr('r-val', circle => {
                 const id = circle.id;
                 if(win_pct.hasOwnProperty(id))
-                    return (win_pct[id]*100).toFixed(2);
+                    return (win_pct[id]*100).toFixed(1);
             });
 
             circles.attr('streak', circle => {

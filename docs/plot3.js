@@ -31,24 +31,27 @@ class PlayerPerf{
 
         let teamToID = {}; // dictionary converting team nickname to team_id
         const metricsDict = {
-            "Box Offense": "raptor_box_offense",
-            "Box Defense": "raptor_box_defense",
-            "Box Total": "raptor_box_total",
-            "On/Off Offense": "raptor_onoff_offense",
-            "On/Off Defense": "raptor_onoff_defense",
-            "On/Off Total": "raptor_onoff_total",
-            "Offense": "raptor_offense",
-            "Defense": "raptor_defense",
-            "Total": "raptor_total",
+            "Ratpor Box Offense": "raptor_box_offense",
+            "Raptor Box Defense": "raptor_box_defense",
+            "Raptor Box Total": "raptor_box_total",
+            "Raptor On/Off Offense": "raptor_onoff_offense",
+            "Raptor On/Off Defense": "raptor_onoff_defense",
+            "Raptor On/Off Total": "raptor_onoff_total",
+            "Raptor Offense": "raptor_offense",
+            "Raptor Defense": "raptor_defense",
+            "Raptor Total": "raptor_total",
             "WAR Total": "war_total",
-            "WAR Regular": "war_reg_season",
-            "WAR Playoffs": "war_playoffs",
+            // "WAR Regular": "war_reg_season",
+            // "WAR Playoffs": "war_playoffs",
             "Predator Offense": "predator_offense",
             "Predator Defense": "predator_defense",
             "Predator Total": "predator_total",
             "Pace Impact": "pace_impact"
           };
 
+        function roundToTwoDecimals(number){
+          return (Math.round(number * 100) / 100).toFixed(2)
+        }
 
         function mouseOver(event, d){
 
@@ -64,17 +67,49 @@ class PlayerPerf{
             .style("fill", "orange");
 
 
-        // Display the name
+        // Select the player container to create the player card
         var playerContainer = d3.select("#player-container");
 
-        // Append a new div for the player name
+        // Clear existing contents
+        playerContainer.html("");
 
-        playerName = playerContainer
-        .selectAll('span')
-        .data([d.player_name])
-        .enter()
-        .append('span')
-        .text(d => d);
+        // Create a box to enclose the player card
+        const infoBox = playerContainer.append("div")
+            .attr("class", "player-card");
+
+        var playerId = getPlayerId(d.player_name);
+        // if the player id is successfully recovered, add the player headshot
+        if (playerId !== null){
+          // Append the player image
+          infoBox.append("img")
+              .attr("class", "player-image")
+              .attr("src", "https://ak-static.cms.nba.com/wp-content/uploads/headshots/nba/latest/260x190/" + playerId + ".png" );
+        }
+
+        // Append the player name
+        infoBox.append("div")
+            .attr("class", "player-name")
+            .text(d.player_name + " (" + d.team + ")");
+
+        // Append the stats
+        infoBox.append("div")
+            .attr("class", "stat-name")
+            .text(metricSelect.property('value'))
+            .append("div")
+            .attr("class", "player-stat")
+            .text("Regular Season: " + roundToTwoDecimals(d.rs_stat))
+            .append("div")
+            .attr("class", "player-stat")
+            .text("Playoffs: " + roundToTwoDecimals(d.po_stat));
+
+
+        // // Append a new div for the player name
+        // playerName = playerContainer
+        // .selectAll('span')
+        // .data([d.player_name])
+        // .enter()
+        // .append('span')
+        // .text(d => d);
 
         }
 
@@ -87,8 +122,8 @@ class PlayerPerf{
             .style("fill", originalColour)
             .attr("r", originalSize); // Restore the original circle size
 
-            // Remove the name label
-            playerName.remove();
+            // Remove the player information
+            d3.select("#player-container").html("");
         }
 
         function mouseClick(event, d){
@@ -145,8 +180,18 @@ class PlayerPerf{
             return genColorScale;
         }
 
+        function getTeamLogo(team) {
+          if (team === "BRK"){
+            team = "BKN";
+          } else if (team === "PHO") {
+            team = "PHX";
+          }
+          return "logos/" + team + "_2023.png";
+        }
 
-        function createLegend(legendArray){
+
+
+        function createLegend(legendArray, isTeam=false){
             var legendContainer = d3.select("#legend-container");
             legendContainer.selectAll('*').remove();
 
@@ -169,6 +214,13 @@ class PlayerPerf{
                 .style("font-size", "14px")
                 .text(function(d) { return d; });
 
+              if (isTeam){
+                // Add team images to legend items
+                legendItems.append("img")
+                  .attr("class", "team-logo")
+                  .attr("src", getTeamLogo);
+              }
+
 
             d3.selectAll('.legend-item')
                 .on('click', function() {
@@ -188,7 +240,10 @@ class PlayerPerf{
                     if (isSelected) {
                       // Show all groups if the item was previously selected
                       circles.style('display', 'block');
+                      d3.selectAll('.legend-item').style('opacity', 1);
                     } else {
+                      d3.selectAll('.legend-item').style('opacity', 0.5);
+                      d3.select(this).style('opacity', 1);
                       // Otherwise, show only the selected group
                       circles.style('display', function() {
                         var circleColor = d3.select(this).attr('fill');
@@ -198,6 +253,15 @@ class PlayerPerf{
 
                 });
         }
+
+        function getPlayerId(full_name) {
+          const player = playerData.find((player) => player.display_first_last === full_name);
+          if (player) {
+            return player.person_id;
+          }
+          return null; // Return null if no player is found. shouldn't happen tho since every player is successfully joined using this ds
+        }
+
 
         function calculateAge(birthdate, currentDate) {
 
@@ -250,7 +314,7 @@ class PlayerPerf{
             circles.attr("fill", function(d) {
                 return colorScale(d.team);
             });
-            createLegend(sortedTeams);
+            createLegend(sortedTeams, true);
         }
 
         function handleHeight(changeScale){
@@ -291,7 +355,7 @@ class PlayerPerf{
                 return colorScale(d.matchedItem.position);
             });
 
-            createLegend(positions, colorScale);
+            createLegend(positions);
     }
 
 
@@ -317,14 +381,16 @@ class PlayerPerf{
             const xExtent = d3.extent(playoffArray, d => d.rs_stat);
             const yExtent = d3.extent(playoffArray, d => d.po_stat);
             const maxExtent = Math.max(Math.abs(xExtent[0]), Math.abs(xExtent[1]), Math.abs(yExtent[0]), Math.abs(yExtent[1]));
+            const offset = 1
+            const padding = 50
 
             xScale = d3.scaleLinear()
-                .domain([-maxExtent, maxExtent])
-                .range([margin.left, margin.left + width]);
+                .domain([-maxExtent - offset, maxExtent + offset])
+                .range([margin.left + padding, margin.left + width - padding]);
 
             yScale = d3.scaleLinear()
-                .domain([-maxExtent, maxExtent])
-                .range([margin.top + height, margin.top]);
+                .domain([-maxExtent - offset, maxExtent + offset])
+                .range([margin.top + height - padding, margin.top + padding]);
 
             const xAxis = d3.axisBottom(xScale).ticks(5).tickFormat(d3.format("+"));
             const yAxis = d3.axisLeft(yScale).ticks(5).tickFormat(d3.format("+"));
@@ -358,6 +424,9 @@ class PlayerPerf{
                 .attr("x", width / 2)
                 .attr("y", height + margin.top + margin.bottom - 5)
                 .style("text-anchor", "middle")
+                .style("font-size", "18px")
+                .style("font-weight", "bold")
+                .style("font-style", "italic")
                 .text("Regular Season " + metricSelect.property('value'));
 
             // Add y-axis title
@@ -365,8 +434,11 @@ class PlayerPerf{
                 .attr("class", "axis-title")
                 .attr("transform", "rotate(-90)")
                 .attr("x", -height / 2)
-                .attr("y", -margin.left + 15)
+                .attr("y", -margin.left + 25)
                 .style("text-anchor", "middle")
+                .style("font-size", "18px")
+                .style("font-weight", "bold")
+                .style("font-style", "italic")
                 .text("Playoff " + metricSelect.property('value'));
 
             mouseInteractions();
@@ -459,24 +531,7 @@ class PlayerPerf{
         function createMetricDD(){
             metricSelect = d3.select("#perf-metric-select")
                 .attr("id", "perf-metric-select");
-                const metricOptions = [
-                    "Box Offense",
-                    "Box Defense",
-                    "Box Total",
-                    "On/Off Offense",
-                    "On/Off Defense",
-                    "On/Off Total",
-                    "Offense",
-                    "Defense",
-                    "Total",
-                    "WAR Total",
-                    "WAR Regular",
-                    "WAR Playoffs",
-                    "Offense",
-                    "Defense",
-                    "Total",
-                    "Pace Impact"
-                ];
+                const metricOptions = Object.keys(metricsDict);
 
             const metricOptionsHeader = ["--Metric--", ...metricOptions];
             populateDropdown(metricSelect, metricOptionsHeader);
@@ -532,7 +587,7 @@ class PlayerPerf{
         Promise.all([
             d3.csv("modern_RAPTOR_by_team.csv"),
             d3.csv("latest_RAPTOR_by_team.csv"),
-            d3.csv("common_player_info.csv")
+            d3.csv("common_player_info.csv"),
         ]).then(function(values) {
             const modernData = values[0];
             const latestData = values[1];
@@ -554,13 +609,6 @@ class PlayerPerf{
 
     }
 
-    createProjection() {
-        //Define map projection
-        let projection = d3.geoAlbersUsa()
-            .translate([this.svg_width/2, this.svg_height/2])
-            .scale([1000]);
-        return projection;
-    }
 }
 
 function whenDocumentLoaded(action) {

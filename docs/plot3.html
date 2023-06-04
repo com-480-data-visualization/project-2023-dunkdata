@@ -5,22 +5,65 @@
     <title>Scatter Plot</title>
     <style>
         #fullPlot {
-            width: 90%;
+            width: 100%;
             display: flex;
-            margin-left: 0%;
-            align-items: flex-start;
         }
 
         #player-container{
             display: flex;
             flex-wrap: wrap;
-            width: 10%;
+        }
+
+        /* .player-card{
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
             height: 20px;
             max-height: 400px;
-            color: red;
-            font-size: 12px;
-            font-weight: "bold";
-        }
+            margin: auto;
+        } */
+
+          .player-card {
+            border: 1px solid lightgrey;
+            background-color: #f9f9f9;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            line-height: 2;
+          }
+
+          .player-name {
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+          }
+
+          .stat-name {
+            font-style: italic;
+            font-size: 14px;
+            text-align: center;
+          }
+
+          .player-stat {
+            font-size: 14px;
+            text-align: left;
+            font-style: normal;
+          }
+
+          .player-image {
+            width: 90%;
+            display: block;
+            margin: 0 auto;
+          }
+
+          .team-logo {
+            margin: 0 auto;
+            display: block;
+            width: 20%;
+          }
 
         #scatterPlot {
             width: 800px;
@@ -42,7 +85,10 @@
             overflow-y: auto;
         }
 
-
+        .plot-column {
+          flex: 1;
+          padding: 10px;
+        }
 
         .legend-item {
             display: flex;
@@ -79,9 +125,9 @@
     <br>
 
     <div id="fullPlot">
-      <div id="player-container"></div>
-      <div id="scatterPlot"></div>
-      <div id="legend-container"></div>
+      <div class="plot-column" id="player-container" style="width: 35%"></div>
+      <div class="plot-column" id="scatterPlot" style="width: 55%"></div>
+      <div class="plot-column" id="legend-container" style="width: 10%"></div>
     </div>
 
   </div>
