@@ -39,21 +39,18 @@ class NBAMap {
           }
         });
 
-      Promise.all([d3.csv("team.csv"), d3.csv("journey.csv")]).then(
-        (values) => {
-          let teamData = values[0];
-          let journeyData = values[1];
-          // create a dropdown menu to select a team
-          this.createCircles(this.svg, teamData, projection);
-          this.createDropdown(
-            this,
-            this.svg,
-            teamData,
-            journeyData,
-            projection
-          );
-        }
-      );
+      Promise.all([
+        d3.csv("team.csv"),
+        d3.csv("journey.csv"),
+        d3.csv("common_player_info.csv"),
+      ]).then((values) => {
+        let teamData = values[0];
+        let journeyData = values[1];
+        this.commonPlayerData = values[2];
+        // create a dropdown menu to select a team
+        this.createCircles(this.svg, teamData, projection);
+        this.createDropdown(this, this.svg, teamData, journeyData, projection);
+      });
     });
   }
 
@@ -391,6 +388,11 @@ class NBAMap {
       }, delay);
       delay += dur;
     });
+    const found = self.commonPlayerData.find(
+      (d) => d.display_first_last === selectedPlayer
+    );
+    console.log(found.person_id);
+    console.log(found.last_affiliation);
   }
 
   animatePath(self, feature, projection, dur) {
