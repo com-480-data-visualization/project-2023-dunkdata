@@ -424,11 +424,8 @@ class NBAMap {
     let projected = projection(pointCoords);
     const imageSize = 60; // Adjust the size of the logo image
 
-    const prevImg = d3.select(`.team-${feature.properties.destTeamId}`);
-    const prevImgSize = prevImg.attr("width");
-
-    let img = d3
-      .select(`.team-${feature.properties.destTeamId}`)
+    self.svg
+      .append("image")
       .attr("x", projected[0] - imageSize / 2)
       .attr("y", projected[1] - imageSize / 2)
       .attr("width", imageSize)
@@ -442,9 +439,8 @@ class NBAMap {
       .style("opacity", 1)
       .transition()
       .duration(dur * 2)
-      .style("opacity", 0);
-
-    self.resetDefaultTeamLogo(img, projection, prevImgSize);
+      .style("opacity", 0)
+      .remove();
   }
 
   createMouseClickHandlerJourneyPath(self, svg, playerSelect, projection) {
