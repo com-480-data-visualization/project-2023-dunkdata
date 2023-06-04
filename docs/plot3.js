@@ -355,7 +355,7 @@ class PlayerPerf{
                 return colorScale(d.matchedItem.position);
             });
 
-            createLegend(positions, colorScale);
+            createLegend(positions);
     }
 
 
