@@ -112,13 +112,12 @@ class NBAMap {
     return projection;
   }
 
-  calculateControlPoints(source, target, offset, pointIndex) {
-  console.log(pointIndex);
+  calculateControlPoints(source, target, offset) {
   const dx = target[0] - source[0];
   const dy = target[1] - source[1];
   const length = Math.sqrt(dx * dx + dy * dy);
   const normal = [-dy / length, dx / length];
-  const controlPointOffset = offset * (pointIndex % 2 ? 1 : -1);
+  const controlPointOffset = (offset + (Math.random() / 10)) * length;// * (pointIndex % 2 ? 1 : -1);
   const controlPoint = [
     ((+source[0] + +target[0]) / 2) + (controlPointOffset * normal[0]),
     ((+source[1] + +target[1]) / 2) + (controlPointOffset * normal[1]),
@@ -340,10 +339,8 @@ class NBAMap {
         const controlPoint = self.calculateControlPoints(
           projection(coord.map(x=>+x)),
           projection(journey[innerIndex + 1].map(x=>+x)),
-          75,
-          innerIndex
+          0.35,
         );
-        console.log(controlPoint)
 
         return {
           type: "Feature",
