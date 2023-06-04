@@ -240,7 +240,10 @@ class PlayerPerf{
                     if (isSelected) {
                       // Show all groups if the item was previously selected
                       circles.style('display', 'block');
+                      d3.selectAll('.legend-item').style('opacity', 1);
                     } else {
+                      d3.selectAll('.legend-item').style('opacity', 0.5);
+                      d3.select(this).style('opacity', 1);
                       // Otherwise, show only the selected group
                       circles.style('display', function() {
                         var circleColor = d3.select(this).attr('fill');
