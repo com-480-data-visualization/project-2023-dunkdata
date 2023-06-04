@@ -15,6 +15,76 @@
       border: black;
     }
 
+    .map {
+      display: flex;
+      width: 100%;
+    }
+
+    #map_h2h {
+      display: flex;
+      margin-left: 0;
+      width: 960px;
+      height: 500px;
+    }
+
+
+    .card {
+      position: relative;
+      width: 25%;
+      height: 50%;
+      margin-top: 10%;
+      background-color: #f9f9f9;
+      border: 1px solid lightgrey;
+      padding: 10px;
+      border-radius: 4px;
+      visibility: hidden;
+      line-height: 1.2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+    }
+
+    .tooltip span {
+      font-size: 15px;
+    }
+
+    #nickname {
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #city {
+      color: #888;
+      text-align: center;
+    }
+
+    #streak {
+      display: inline-block;
+      text-align: center;
+      /* Add additional styles as needed */
+    }
+
+    #val {
+      text-align: center;
+      /* Add additional styles as needed */
+    }
+
+    #rad {
+      /* Add additional styles as needed */
+    }
+
+
+    .logo img {
+      width: 80%;
+      margin-top: 5%;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+
     .chartContainer {
       display: flex;
       width: 100%;
@@ -153,6 +223,9 @@
       <div class="carousel-slider"></div>
     </div>
 
+   
+    
+
 
     <div class="selections-container">
       <div id="selectedTeamContainer">
@@ -160,13 +233,28 @@
       </div>
       <select id="h2h-metric-select"></select>
     </div>
-    <svg id="map_h2h" viewBox="0 0 960 500" width="90%"></svg>
+    <div class="map">
+      <svg id="map_h2h" viewBox="0 0 960 500"></svg>
+      <div class="card">
+        <div class="logo">
+          <img id="team-logo" src="" alt="">
+        </div>
+        <div class="tooltip">
+          <span id="nickname"></span><br>
+          <span id="city"></span><br>
+          <span id="streak"></span><br>
+          <span id="val"></span><br>
+          <span id="rad"></span>
+        </div>
+      </div>
+    </div>
+    <div class="chartContainer">
+      <div id="statsBarAway"></div>
+      <div id="statsBarHome"></div>
+    </div>
   </div>
 
-  <div class="chartContainer">
-    <div id="statsBarAway"></div>
-    <div id="statsBarHome"></div>
-  </div>
+  
 
   <!-- <div class="table-container">
     <table id="statsTableAway">
