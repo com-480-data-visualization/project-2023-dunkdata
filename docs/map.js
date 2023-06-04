@@ -113,17 +113,17 @@ class NBAMap {
   }
 
   calculateControlPoints(source, target, offset) {
-  const dx = target[0] - source[0];
-  const dy = target[1] - source[1];
-  const length = Math.sqrt(dx * dx + dy * dy);
-  const normal = [-dy / length, dx / length];
-  const controlPointOffset = (offset + (Math.random() / 10)) * length;// * (pointIndex % 2 ? 1 : -1);
-  const controlPoint = [
-    ((+source[0] + +target[0]) / 2) + (controlPointOffset * normal[0]),
-    ((+source[1] + +target[1]) / 2) + (controlPointOffset * normal[1]),
-  ];
-  return controlPoint;
-}
+    const dx = target[0] - source[0];
+    const dy = target[1] - source[1];
+    const length = Math.sqrt(dx * dx + dy * dy);
+    const normal = [-dy / length, dx / length];
+    const controlPointOffset = (offset + Math.random() / 10) * length; // * (pointIndex % 2 ? 1 : -1);
+    const controlPoint = [
+      (+source[0] + +target[0]) / 2 + controlPointOffset * normal[0],
+      (+source[1] + +target[1]) / 2 + controlPointOffset * normal[1],
+    ];
+    return controlPoint;
+  }
 
   getGeoGenerator(projection) {
     return d3.geoPath().projection(projection);
@@ -186,9 +186,7 @@ class NBAMap {
       const selectedSeasonNum = self.getSelectedSeasonNum(selectedSeason);
       if (selectedSeasonNum === -1) {
         self.populateDropdown(teamSelect, ["--Team--"]);
-        d3.selectAll(".journey-path").remove();
-        self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
-        d3.select("#player-container").html("");
+        self.resetMapCanvas(self, projection);
         return null;
       }
       const selectedSeasonData = self.filterJourneyDataBySeason(
@@ -214,7 +212,6 @@ class NBAMap {
     playerSelect
   ) {
     return function () {
-      d3.selectAll(".journey-path").remove();
       const selectedSeason = seasonSelect.property("value");
       const selectedSeasonNum = self.getSelectedSeasonNum(selectedSeason);
       if (selectedSeasonNum === -1) {
@@ -228,8 +225,7 @@ class NBAMap {
       const selectedTeam = d3.select(this).property("value");
       if (selectedTeam === "--Team--") {
         self.populateDropdown(playerSelect, ["--Player--"]);
-        self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
-        d3.select("#player-container").html("");
+        self.resetMapCanvas(self, projection);
         return null;
       }
       const selectedTeamData = self.filterTeamDataByNickname(
@@ -243,8 +239,7 @@ class NBAMap {
       const projected = projection(selectedTeamCoords);
 
       if (!projected) return null;
-      self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
-      d3.select("#player-container").html("");
+      self.resetMapCanvas(self, projection);
 
       const imageSize = 60;
       // Modify the existing team logo image
@@ -311,14 +306,12 @@ class NBAMap {
     return function () {
       const selectedPlayer = d3.select(this).property("value");
       if (selectedPlayer === "--Player--") {
-        d3.selectAll(".journey-path").remove();
+        self.resetMapCanvas(self, projection);
+        // reset the paths because we removed them when choosing a specific player
         d3.select("#map-team-select").dispatch("change");
-        self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
-        d3.select("#player-container").html("");
         return null;
       }
       const journeyPaths = svg.selectAll(".journey-path");
-
       self.handlePlayerSelect(self, journeyPaths, selectedPlayer, projection);
     };
   }
@@ -331,14 +324,12 @@ class NBAMap {
     sortedPlayerNames,
     playerSelect
   ) {
-    const pathGenerator = self.getGeoGenerator(projection);
-
     const features = journeyCoords.flatMap((journey, index) => {
       return journey.slice(0, -1).map((coord, innerIndex) => {
         const controlPoint = self.calculateControlPoints(
-          projection(coord.map(x=>+x)),
-          projection(journey[innerIndex + 1].map(x=>+x)),
-          0.35,
+          projection(coord.map((x) => +x)),
+          projection(journey[innerIndex + 1].map((x) => +x)),
+          0.35
         );
 
         return {
@@ -367,12 +358,6 @@ class NBAMap {
       .attr("id", (d, i) => `journey-path-${i}`)
       .attr("d", (d) => {
         var [start, control, end] = d.geometry.coordinates;
-        // start = start.map(x=>+x);
-        // end = end.map(x=>+x);
-        // console.log([start.map(x=>+x), control.map(x=>+x), end.map(x=>+x)]);
-        // start = projection(start.map(x=>+x))
-        // end = projection(end.map(x=>+x))
-
         return `M${start[0]},${start[1]} Q${control[0]},${control[1]} ${end[0]},${end[1]}`;
       })
       .style("fill", "none")
@@ -565,6 +550,12 @@ class NBAMap {
         svg.select("#tooltip").remove();
       }
     };
+  }
+
+  resetMapCanvas(self, projection) {
+    d3.selectAll(".journey-path").remove();
+    self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
+    d3.select("#player-container").html("");
   }
 
   sortPlayerNames(playerNames) {
