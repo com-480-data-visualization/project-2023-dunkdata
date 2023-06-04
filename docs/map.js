@@ -1,4 +1,5 @@
 const DEFAULTSTROKEWIDTH = 0.5;
+const DEFAULTIMAGESIZE = 30;
 
 class NBAMap {
   constructor(svg_id, div_id) {
@@ -57,42 +58,50 @@ class NBAMap {
   }
 
   createCircles(svg, data, projection) {
-    // Create circles and tooltip labels
-    const circles = svg
-      .selectAll("circle")
+    // Create image elements and tooltip labels
+    const images = svg
+      .selectAll("image")
       .data(data)
-      .join("circle")
-      .attr("cx", (d) => projection([d.longitude, d.latitude])[0])
-      .attr("cy", (d) => projection([d.longitude, d.latitude])[1])
-      .attr("r", 5)
-      .style("fill", "red")
-      .style("stroke", "gray")
-      .style("stroke-width", 0.25)
-      .style("opacity", 0.75);
+      .join("image")
+      .attr(
+        "x",
+        (d) => projection([d.longitude, d.latitude])[0] - DEFAULTIMAGESIZE / 2
+      )
+      .attr(
+        "y",
+        (d) => projection([d.longitude, d.latitude])[1] - DEFAULTIMAGESIZE / 2
+      )
+      .attr("id", (d) => d.id)
+      .attr("width", DEFAULTIMAGESIZE)
+      .attr("height", DEFAULTIMAGESIZE)
+      .attr("class", (d) => `map-logo team-${d.id}`)
+      .attr("xlink:href", (d) => {
+        return `https://cdn.nba.com/logos/nba/${d.id}/global/L/logo.svg`; // Replace with the NBA logo path or URL for each team
+      })
+      .style("opacity", 0.8);
 
-    circles.append("title").text((d) => `${d.nickname} (${d.city})`);
+    images.append("title").text((d) => `${d.nickname} (${d.city})`);
 
-    circles
+    images
       .on("mouseover", (event, d) => {
-        d3.select(event.currentTarget)
+        const image = d3.select(event.currentTarget);
+        if (image.attr("id") === "selected-team") return null;
+        image
           .transition()
           .duration(200)
-          .attr("r", 10)
-          .style("fill", "orange");
-        let projected = projection([d.longitude, d.latitude]);
-        svg
-          .append("text")
-          .attr("id", "tooltip")
-          .attr("x", projected[0] + 10)
-          .attr("y", projected[1] + 10)
-          .text(d.nickname);
+          .attr("width", DEFAULTIMAGESIZE + 10)
+          .attr("height", DEFAULTIMAGESIZE + 10)
+          .style("opacity", 1);
       })
       .on("mouseout", (event, d) => {
-        d3.select(event.currentTarget)
+        const image = d3.select(event.currentTarget);
+        if (image.attr("id") === "selected-team") return null;
+        image
           .transition()
           .duration(200)
-          .attr("r", 5)
-          .style("fill", "red");
+          .attr("width", DEFAULTIMAGESIZE)
+          .attr("height", DEFAULTIMAGESIZE)
+          .style("opacity", 0.8);
         svg.select("#tooltip").remove();
       });
   }
@@ -218,41 +227,36 @@ class NBAMap {
       );
       const selectedTeam = d3.select(this).property("value");
       if (selectedTeam === "--Team--") {
+        self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
+        // d3.select("#selected-team")
+        //   .attr("width", DEFAULTIMAGESIZE)
+        //   .attr("height", DEFAULTIMAGESIZE)
+        //   .attr("id", (d) => d.id);
         d3.select("#selected-team").remove();
-        d3.select("#selected-team-label").remove();
-        d3.select("#selected-player").remove();
-        d3.select("#selected-player-label").remove();
         return null;
       }
       const selectedTeamData = self.filterTeamDataByNickname(
         teamData,
         selectedTeam
-      );
+      )[0];
       const selectedTeamCoords = [
-        selectedTeamData[0].longitude,
-        selectedTeamData[0].latitude,
+        selectedTeamData.longitude,
+        selectedTeamData.latitude,
       ];
       const projected = projection(selectedTeamCoords);
 
       if (!projected) return null;
+      self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
 
-      d3.select("#selected-team").remove();
-      d3.select("#selected-team-label").remove();
-
-      svg
-        .append("circle")
+      const imageSize = 60;
+      // Modify the existing team logo image
+      d3.selectAll(".map-logo")
+        .filter((d) => d.nickname === selectedTeam)
+        .attr("x", projected[0] - imageSize / 2)
+        .attr("y", projected[1] - imageSize / 2)
         .attr("id", "selected-team")
-        .attr("cx", projected[0])
-        .attr("cy", projected[1])
-        .attr("r", 10)
-        .style("fill", "orange");
-
-      svg
-        .append("text")
-        .attr("id", "selected-team-label")
-        .attr("x", projected[0] + 10)
-        .attr("y", projected[1] + 10)
-        .text(selectedTeam);
+        .attr("width", imageSize)
+        .attr("height", imageSize);
 
       const selectedSeasonAndTeamData = self.filterJourneyDataByTeam(
         selectedSeasonData,
@@ -271,13 +275,12 @@ class NBAMap {
 
       // this is a list of journeys of each player in the selected team
       const journeys = self.getPlayerJourneyData(
-        self,
         selectedSeasonNum,
         selectedTeam,
         sortedPlayerNames,
         journeyData
       );
-      const journeyCoords = self.getJourneyCoords(journeys, teamData);
+      const journeyCoords = self.getJourneyCoords(self, journeys, teamData);
       // for each journey, draw a path
       self.drawJourneyPaths(
         self,
@@ -288,6 +291,22 @@ class NBAMap {
         playerSelect
       );
     };
+  }
+
+  resetDefaultTeamLogo(logoElement, projection, imageSize = DEFAULTIMAGESIZE) {
+    logoElement
+      .attr(
+        "x",
+        (d) => projection([d.longitude, d.latitude])[0] - imageSize / 2
+      )
+      .attr(
+        "y",
+        (d) => projection([d.longitude, d.latitude])[1] - imageSize / 2
+      )
+      .attr("id", (d) => d.id)
+      .attr("width", imageSize)
+      .attr("height", imageSize)
+      .style("opacity", 0.8);
   }
 
   createPlayerSelectHandlerDD(self, svg, projection) {
@@ -318,6 +337,7 @@ class NBAMap {
         },
         properties: {
           player: sortedPlayerNames[index],
+          destTeamId: journey[innerIndex + 1][2],
         },
       }));
     });
@@ -360,9 +380,7 @@ class NBAMap {
       return 0;
     });
     if (selectedPlayer === "--Player--") return null;
-    // call animatePath on the selected player
-    // find the path of the selected player
-    // for each feature in the path, call animatePath
+    // call animatePath on the selected player, for each feature in the path, call animatePath
     const selectedJourneyPath = journeyPaths.filter((d, i) => {
       return d.properties.player === selectedPlayer;
     });
@@ -404,15 +422,17 @@ class NBAMap {
     // Get the coordinates of the destination point
     let pointCoords = feature.geometry.coordinates[1];
     let projected = projection(pointCoords);
-    if (!projected) return null;
-    // Create a circle element at the point coordinates
+    const imageSize = 60; // Adjust the size of the logo image
+
     self.svg
-      .append("circle")
-      .attr("cx", projected[0])
-      .attr("cy", projected[1])
-      .attr("r", 8)
-      .attr("class", "animated-circle")
-      .style("fill", "orange")
+      .append("image")
+      .attr("x", projected[0] - imageSize / 2)
+      .attr("y", projected[1] - imageSize / 2)
+      .attr("width", imageSize)
+      .attr("height", imageSize)
+      .attr("xlink:href", () => {
+        return `https://cdn.nba.com/logos/nba/${feature.properties.destTeamId}/global/L/logo.svg`;
+      })
       .style("opacity", 0)
       .transition()
       .duration(dur * 2)
@@ -516,7 +536,6 @@ class NBAMap {
 
   // for each player in playerNames, get the player's journey data
   getPlayerJourneyData(
-    self,
     selectedSeasonNum,
     selectedTeam,
     playerNames,
@@ -532,7 +551,6 @@ class NBAMap {
       const uniquePlayerTeams = playerTeams.filter(
         (team, i) => i === 0 || team !== playerTeams[i - 1]
       );
-      //TODO: this is not working
       const finalTeamIndex = uniquePlayerTeams.lastIndexOf(selectedTeam);
       if (finalTeamIndex !== -1) {
         return uniquePlayerTeams.slice(0, finalTeamIndex + 1);
@@ -553,13 +571,13 @@ class NBAMap {
     return teamData.filter((d) => d.nickname === selectedTeam);
   }
 
-  getJourneyCoords(journeys, teamData) {
+  getJourneyCoords(self, journeys, teamData) {
     // get the coordinates of each team in the journey
     return journeys.map((journey) => {
       return journey.map((team) => {
         // if teamRow has more than one row, then the team has multiple abbreviations in `team.csv`
-        const teamRow = teamData.filter((d) => d.nickname === team)[0];
-        return [teamRow.longitude, teamRow.latitude];
+        const teamRow = self.filterTeamDataByNickname(teamData, team)[0];
+        return [teamRow.longitude, teamRow.latitude, teamRow.id];
       });
     });
   }

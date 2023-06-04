@@ -111,7 +111,7 @@ class Head2Head{
             }
 
             attributes.forEach(attribute => {
-                averageStats[attribute] = [(sumStatsHome[attribute+"_home"] / countStatsHome[attribute+"_home"]).toFixed(2), (sumStatsAway[attribute+"_away"] / countStatsAway[attribute+"_away"]).toFixed(2)];
+                averageStats[attribute] = [(sumStatsHome[attribute+"_home"] / countStatsHome[attribute+"_home"]).toFixed(1), (sumStatsAway[attribute+"_away"] / countStatsAway[attribute+"_away"]).toFixed(1)];
             });
 
             if(away)
@@ -407,67 +407,75 @@ class Head2Head{
         function mouseOver(event, d){
 
             // Get previous values to restore for mouseOut
-            const prevR = d3.select(this).attr("r");
             const prevColour = d3.select(this).style("fill");
 
             d3.select(this)
                 .transition()
                 .duration(200)
-                .attr("original-size", prevR)
-                .attr("r", 10)
                 .attr("original-colour", prevColour)
                 .style("fill", "orange");
             let projected = projection([d.longitude, d.latitude]);
-            svg.append("text")
-                .attr("id", "tooltip")
-                .attr("x", projected[0] + 10)
-                .attr("y", projected[1] + 10)
-                .text(d.nickname + "(" + d.city + ")")
-                .attr("font-size", 15);
+
 
             svg.append("image")
                 .attr("xlink:href", "logos/" + d.abbreviation + "_2023.png") // Set the path to your logo image file
-                .attr("x", projected[0] + d.nickname.length*5) // Set the x-coordinate of the image position based on the length of the nickname
+                .attr("x", projected[0]) // Set the x-coordinate of the image position based on the length of the nickname
                 .attr("y", projected[1] - 60) // Set the y-coordinate of the image position
                 .attr("width", 50) // Set the width of the image
                 .attr("height", 50); // Set the height of the image
 
 
+            // Get the references to the elements in the card
+            const nicknameElement = document.getElementById('nickname');
+            const cityElement = document.getElementById('city');
             if(dropdownsActive){
                 const streak = d3.select(this).attr("streak");
-                var characterWidths = streak.split('').map(function(d) {
-                    return d === 'W' ? 16 : 10; // since 'W' is wider than 'L'
-                });
-                svg.append("text")
-                    .attr("id", "tooltip")
-                    .attr("x", projected[0] + 20)
-                    .attr("y", projected[1] + 30)
-                    .selectAll("tspan")
-                .data(streak.split(''))
-                .enter()
-                .append("tspan")
-                .attr("x", function(_, i) {
-                    var accumulatedWidth = characterWidths.slice(0, i).reduce(function(sum, width) {
-                      return sum + width;
-                    }, 0);
-                    return projected[0] + 20 + accumulatedWidth;
-                  })
-                .text(function(d) { return d; })
-                .style("fill", function(d) { return d === "L" ? "red" : "green"; });
+                const streakElement = document.getElementById('streak');
+                streakElement.innerHTML = '';
+                streakElement.textContent = "Last 5: ";
+                for(const res of streak){
+                    const spanElement = document.createElement('span');
+                    spanElement.textContent = res;
+
+                    // Set the color style based on the res
+                    if (res === 'W') {
+                        spanElement.style.color = 'green';
+                    } else if (res === 'L') {
+                        spanElement.style.color = 'red';
+                    }
+                streakElement.appendChild(spanElement);
+                }
+                const valElement = document.getElementById('val');
+                const radElement = document.getElementById('rad');
+                const val = d3.select(this).attr("val");
+                const rad = d3.select(this).attr("r-val");
+                valElement.textContent = metricSelect.property('value') + ": " + val;
+                radElement.textContent = "Win Pct: " + rad + "%";
             }
+            const logoElement = document.getElementById('team-logo');
+
+            // Update the content of the card
+            nicknameElement.textContent = "Team: " + d.nickname;
+            cityElement.textContent = "City: " + d.city;
+            
+            logoElement.setAttribute('src', 'logos/' + d.abbreviation + '_2023.png');
+
+            // Show the card
+            const card = document.querySelector('.card');
+            card.style.visibility = 'visible';
         }
 
         function mouseOut(event, d){
-            const originalSize = d3.select(this).attr("original-size");
             const originalColour = d3.select(this).attr("original-colour");
             d3.select(this)
             .transition()
             .duration(200)
-            .attr("r", originalSize)
             .style("fill", originalColour);
             svg.select("#tooltip").remove();
             d3.selectAll('text#tooltip').remove();
             d3.selectAll('image').remove();
+            const card = document.querySelector('.card');
+            card.style.visibility = 'hidden';
         }
 
         function mouseClick(event, d){
@@ -513,11 +521,6 @@ class Head2Head{
                 .style("stroke-width", 0.25)
                 .style("opacity", 0.75);
 
-            // circles.append("title")
-            //     .text(function(d) {
-            //         return d.nickname + " (" + d.city+ ")";
-            //     });
-
             mouseInteractions();
         }
 
@@ -529,24 +532,8 @@ class Head2Head{
             return geojson;
         }
 
-        function findMinMax(aggMetric) {
-            let l = -Infinity;
-            let s = Infinity;
-
-            for (const id in aggMetric) {
-              const perfAway = aggMetric[id].perf_away;
-              if(perfAway > l){
-                l = perfAway;
-              }
-              if(perfAway < s){
-                s = perfAway;
-              }
-            }
-            return {largest: l, smallest: s};
-          }
-
         function createLegend(){
-            const colorRange = ["red", "blue"];
+            const colorRange = ["red", "yellow", "green"];
 
             // Create a linear gradient
             const gradient = svg.append("defs")
@@ -595,45 +582,73 @@ class Head2Head{
             * Group the teams played against and aggregate the relevant stat
             */
             curTeam = team_id; // For the mouseclick event
-            const awayGames = gameData.filter((d) => d.team_id_away === team_id);
+            const awayGames = gameData.filter((d) => d.team_id_away === team_id && d.season_id >= 22016);
             const groupedGames = d3.group(awayGames, d => d.team_id_home);
             const aggMetric = {};
-            const record = {};
+            const record = {}; // for the last five games played
+            const wins = {}; // for all the games played in the last seven years
+            const totalGames = {};
+
             groupedGames.forEach((stats_at_venue, home_team_id) => {
                 const perf_home = d3.mean(stats_at_venue, d => Number(d[metric_prefix + "_home"])); // how well the home team did
                 const perf_away = d3.mean(stats_at_venue, d => Number(d[metric_prefix + "_away"])); // how well the away team (selected team) did against this home team
                 const matches_played = stats_at_venue.length;
                 aggMetric[home_team_id] = {perf_home, perf_away, matches_played};
+                
+                stats_at_venue.forEach(function(element){
+                    if(!wins.hasOwnProperty(home_team_id)){
+                        wins[home_team_id] = 0;
+                        totalGames[home_team_id] = 0;
+                    }
+                    if(element.wl_away === 'W')
+                        wins[home_team_id]++;
+                    totalGames[home_team_id]++;
+                });
                 var lastFive = stats_at_venue.slice(-5).reverse(); // every team has played every other at-least five times
-                // No! Jazz at Thunder?! What's going on there?
                 var streak = "";
                 lastFive.forEach(function(element){
                     streak += element.wl_away;
                 });
                 record[home_team_id] = streak;
             });
-            const scores = Object.values(aggMetric).map(d => d.perf_away);
-            const scoreExtent = d3.extent(scores); // gets the range of scores
 
+            const win_pct = {};
+            for (let h_id in wins) {
+                win_pct[h_id] = wins[h_id] / totalGames[h_id];
+            }
+            const radiusExtent = d3.extent(Object.values(win_pct));
             // Scale for the radius
             const radiusScale = d3.scaleLinear()
-            .domain(scoreExtent)
-            .range([0, 10]);
+            .domain(radiusExtent)
+            .range([5, 20]);
+
+            const scores = Object.values(aggMetric).map(d => d.perf_away);
+            const scoreExtent = d3.extent(scores); // gets the range of scores for the scales
+           
 
             // Scale for the colour
             const colorScale = d3.scaleLinear()
             .domain(scoreExtent)
-            .range(['blue', 'red']);
+            .range(["red", "yellow", "green"]);
 
             createLegend();
 
+            circles.attr('val', circle => {
+                if(aggMetric.hasOwnProperty(circle.id))
+                    return aggMetric[circle.id].perf_away.toFixed(1);
+            });
+
             circles.attr('r', circle => {
                 const id = circle.id;
-                if (aggMetric.hasOwnProperty(id)) {
-                    const metricVal = aggMetric[id].perf_away;
-                    const radius = radiusScale(metricVal);
-                    return radius;
-                }
+                if(win_pct.hasOwnProperty(id))
+                    return radiusScale(win_pct[id]);
+            })
+            .style('opacity', 0.5);
+            
+            circles.attr('r-val', circle => {
+                const id = circle.id;
+                if(win_pct.hasOwnProperty(id))
+                    return (win_pct[id]*100).toFixed(1);
             });
 
             circles.attr('streak', circle => {
@@ -738,6 +753,15 @@ class Head2Head{
             ]).then(function(values) {
                 teamData = values[0];
                 gameData = values[1];
+                for (let i = 0; i < gameData.length; i++) {
+                    const object = gameData[i];
+                    
+                    for (let key in object) {
+                      if (key.includes("pct")) {
+                        object[key] = (object[key] * 100).toString();
+                      }
+                    }
+                }
                 playoffData = values[2];
                 playoffData = playoffData.filter(d => d.GAME_ID.charAt(0) === "4"); // games whose ids start with 4 are
 
