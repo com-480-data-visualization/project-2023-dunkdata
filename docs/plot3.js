@@ -31,18 +31,18 @@ class PlayerPerf{
 
         let teamToID = {}; // dictionary converting team nickname to team_id
         const metricsDict = {
-            "Box Offense": "raptor_box_offense",
-            "Box Defense": "raptor_box_defense",
-            "Box Total": "raptor_box_total",
-            "On/Off Offense": "raptor_onoff_offense",
-            "On/Off Defense": "raptor_onoff_defense",
-            "On/Off Total": "raptor_onoff_total",
-            "Offense": "raptor_offense",
-            "Defense": "raptor_defense",
-            "Total": "raptor_total",
+            "Ratpor Box Offense": "raptor_box_offense",
+            "Raptor Box Defense": "raptor_box_defense",
+            "Raptor Box Total": "raptor_box_total",
+            "Raptor On/Off Offense": "raptor_onoff_offense",
+            "Raptor On/Off Defense": "raptor_onoff_defense",
+            "Raptor On/Off Total": "raptor_onoff_total",
+            "Raptor Offense": "raptor_offense",
+            "Raptor Defense": "raptor_defense",
+            "Raptor Total": "raptor_total",
             "WAR Total": "war_total",
-            "WAR Regular": "war_reg_season",
-            "WAR Playoffs": "war_playoffs",
+            // "WAR Regular": "war_reg_season",
+            // "WAR Playoffs": "war_playoffs",
             "Predator Offense": "predator_offense",
             "Predator Defense": "predator_defense",
             "Predator Total": "predator_total",
@@ -520,24 +520,7 @@ class PlayerPerf{
         function createMetricDD(){
             metricSelect = d3.select("#perf-metric-select")
                 .attr("id", "perf-metric-select");
-                const metricOptions = [
-                    "Box Offense",
-                    "Box Defense",
-                    "Box Total",
-                    "On/Off Offense",
-                    "On/Off Defense",
-                    "On/Off Total",
-                    "Offense",
-                    "Defense",
-                    "Total",
-                    "WAR Total",
-                    "WAR Regular",
-                    "WAR Playoffs",
-                    "Offense",
-                    "Defense",
-                    "Total",
-                    "Pace Impact"
-                ];
+                const metricOptions = Object.keys(metricsDict);
 
             const metricOptionsHeader = ["--Metric--", ...metricOptions];
             populateDropdown(metricSelect, metricOptionsHeader);
