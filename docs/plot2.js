@@ -223,7 +223,7 @@ class Head2Head{
             logoGrid.appendChild(logoElement);
             });
           }
-          
+
           function createBarPlot(displayDict, chartName, homeTeam, awayTeam) {
             // Clear existing chart
             d3.select(chartName).selectAll("*").remove();
@@ -237,6 +237,7 @@ class Head2Head{
             var margin = { top: 50, right: 20, bottom: 50, left: 150 };
             var width = containerWidth - margin.left - margin.right;
             var height = containerHeight - margin.top - margin.bottom;
+            const offset = 70;
           
             // Create the SVG container for the chart
             var svg = d3
@@ -264,31 +265,46 @@ class Head2Head{
               .scaleLinear()
               .domain([0, d3.max(data, (d) => Math.max(d[1], d[2]))])
               .range([0, width]);
+
+            var xScaleNeg = d3
+              .scaleLinear()
+              .domain([0, d3.max(data, (d) => Math.max(d[1], d[2]))])
+              .range([width/2 - offset/2, 0]);
           
             // Create the pairs of bars
             svg.selectAll("g")
-              .data(data)
-              .enter()
-              .append("g")
-              .attr("transform", (d) => "translate(0," + yScale(d[0]) + ")")
-              .selectAll("rect")
-              .data((d) => [d[1], d[2]])
-              .enter()
-              .append("rect")
-              .attr("x", 0)
-              .attr("y", (d, i) => i * yScale.bandwidth() / 2)
-              .attr("width", (d) => xScale(d))
-              .attr("height", yScale.bandwidth() / 2)
-              .attr("fill", (d, i) => (i === 0 ? "steelblue" : "orange"));
+            .data(data)
+            .enter()
+            .append("g")
+            .attr("transform", (d) => "translate(0," + yScale(d[0]) + ")")
+            .selectAll("rect")
+            .data((d) => [d[1], d[2]])
+            .enter()
+            .append("rect")
+            .attr("y", (d, i) => yScale.bandwidth() / 2)
+            .attr("width", (d) => Math.abs(xScale(d)/2))
+            .attr("height", yScale.bandwidth() / 2)
+            .attr("fill", (d, i) => (i === 0 ? "steelblue" : "orange"))
+            .attr("x", (d, i) => {
+            if (i === 1) {
+                return - Math.abs(xScale(d))/2 + width/2 - offset/2;
+            } else {
+                return width/2 + offset/2;
+            }
+            });
+
           
-            // Create the y-axis
-            svg.append("g").call(d3.axisLeft(yScale));
-          
-            // Create the x-axis
-            svg.append("g")
-              .attr("transform", "translate(0," + height + ")")
-              .call(d3.axisBottom(xScale));
-          
+            svg.selectAll(".stat-label")
+            .data(Object.keys(displayDict))
+            .enter()
+            .append("text")
+            .attr("class", "stat-label")
+            .attr("x", width / 2) // Adjust the x position of the labels
+            .attr("y", (d, i) => (i + 1) * (height / Object.keys(displayDict).length))
+            .text((d) => d)
+            .attr("alignment-baseline", "middle")
+            .attr("text-anchor", "middle");
+
             // Create the chart title
             svg.append("text")
               .attr("x", width / 2)
@@ -296,36 +312,36 @@ class Head2Head{
               .attr("text-anchor", "middle")
               .attr("font-size", "20px")
               .text(awayTeam + " @ " + homeTeam);
-          
+
             // Create the legend
-            var legend = svg.append("g")
-              .attr("transform", "translate(" + (width - 120) + ",30)");
+            // var legend = svg.append("g")
+            //   .attr("transform", "translate(" + (width - 120) + ",30)");
           
-            legend.append("rect")
-              .attr("x", 0)
-              .attr("y", 0)
-              .attr("width", 15)
-              .attr("height", 15)
-              .attr("fill", "steelblue");
+            // legend.append("rect")
+            //   .attr("x", 0)
+            //   .attr("y", 0)
+            //   .attr("width", 15)
+            //   .attr("height", 15)
+            //   .attr("fill", "steelblue");
           
-            legend.append("text")
-              .attr("x", 20)
-              .attr("y", 10)
-              .attr("alignment-baseline", "middle")
-              .text(homeTeam);
+            // legend.append("text")
+            //   .attr("x", 20)
+            //   .attr("y", 10)
+            //   .attr("alignment-baseline", "middle")
+            //   .text(homeTeam);
           
-            legend.append("rect")
-              .attr("x", 0)
-              .attr("y", 20)
-              .attr("width", 15)
-              .attr("height", 15)
-              .attr("fill", "orange");
+            // legend.append("rect")
+            //   .attr("x", 0)
+            //   .attr("y", 20)
+            //   .attr("width", 15)
+            //   .attr("height", 15)
+            //   .attr("fill", "orange");
           
-            legend.append("text")
-              .attr("x", 20)
-              .attr("y", 30)
-              .attr("alignment-baseline", "middle")
-              .text(awayTeam);
+            // legend.append("text")
+            //   .attr("x", 20)
+            //   .attr("y", 30)
+            //   .attr("alignment-baseline", "middle")
+            //   .text(awayTeam);
           }
           
           
