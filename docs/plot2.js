@@ -573,21 +573,22 @@ class Head2Head{
 
             // Append the legend rectangle
             svg.append("rect")
-            .attr("x", legendX)
+            .attr("x", legendX + 50)
             .attr("y", legendY)
             .attr("width", legendWidth)
             .attr("height", legendHeight)
+            .attr("margin-left", "5px")
             .style("fill", "url(#color-gradient)");
 
             // Append the legend text
             svg.append("text")
-            .attr("x", legendX-5)
-            .attr("y", legendY + legendHeight + 15)
+            .attr("x", legendX+50)
+            .attr("y", legendY + legendHeight + 12)
             .attr("text-anchor", "start")
             .text("Low");
 
             svg.append("text")
-            .attr("x", legendX + 2*legendWidth-8)
+            .attr("x", legendX + 2*legendWidth+42)
             .attr("y", legendY - 5)
             .attr("text-anchor", "end")
             .text("High");
