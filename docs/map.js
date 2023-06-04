@@ -624,5 +624,5 @@ function whenDocumentLoaded(action) {
 }
 
 function initMap() {
-  map_object = new NBAMap("map", "map-container");
+  map_object = new NBAMap("journey-map", "journey-map-container");
 }
