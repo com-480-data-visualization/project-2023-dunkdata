@@ -4,11 +4,31 @@
     <title>Scatter Plot</title>
   </head>
   <body>
-    <p>
-      This visualisation shows the differences in player performance across
-      regular season and playoffs.
-    </p>
+    <div>
 
+      <p>
+        This visualisation higlights the differences in player performance across regular season and playoffs. To analyse this, we use a
+        simple scatter plot showing the regular season performance for a given metric on the x-axis, and the playoff performance for that metric on
+        the y-axis. The metrics we use here are a collection of FiveThirtyEight's advanced stats including RAPTOR, PREDATOR and WAR. You can read
+        more about these metrics <a href="https://fivethirtyeight.com/features/introducing-raptor-our-new-metric-for-the-modern-nba/">here</a>.
+      </p>
+
+      <p>
+        For any given season, we show each player that played at least 50 minutes in the playoffs, since these stats can be very noisy with a low
+        sample size. Players towards the right perform better in the regular season, whilst those towards the top perform better in playoffs.
+      </p>
+
+      <p>
+        After selecting the season and metric to view, there's an additional option to color and/or filter the points by an additional category
+        such as team, position, height or age. You can toggle to show only a certain group by clicking on the group in the legend.
+      </p>
+
+      <p>
+        On the plot itself, you can hover over any interesting points which will bring up a player card showing the player headshot, their name and team,
+        and their actual performance in RS vs PO for the metric you've selected.
+      </p>
+
+    </div>
     <div id="rs-v-po-container">
       <div id="perfcontainer">
         <select
