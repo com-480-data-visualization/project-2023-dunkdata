@@ -1,163 +1,53 @@
 <!DOCTYPE html>
 <html>
-<head>
-
+  <head>
     <title>Scatter Plot</title>
-    <style>
-        #fullPlot {
-            width: 100%;
-            display: flex;
-        }
+  </head>
+  <body>
+    <div>
 
-        #player-container{
-            display: flex;
-            flex-wrap: wrap;
-        }
+      <p>
+        This visualisation higlights the differences in player performance across regular season and playoffs. To analyse this, we use a
+        simple scatter plot showing the regular season performance for a given metric on the x-axis, and the playoff performance for that metric on
+        the y-axis. The metrics we use here are a collection of FiveThirtyEight's advanced stats including RAPTOR, PREDATOR and WAR. You can read
+        more about these metrics <a href="https://fivethirtyeight.com/features/introducing-raptor-our-new-metric-for-the-modern-nba/">here</a>.
+      </p>
 
-        /* .player-card{
-            display: flex;
-            flex-wrap: wrap;
-            width: 100%;
-            height: 20px;
-            max-height: 400px;
-            margin: auto;
-        } */
+      <p>
+        For any given season, we show each player that played at least 50 minutes in the playoffs, since these stats can be very noisy with a low
+        sample size. Players towards the right perform better in the regular season, whilst those towards the top perform better in playoffs.
+      </p>
 
-          .player-card {
-            border: 1px solid lightgrey;
-            background-color: #f9f9f9;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: auto;
-            line-height: 2;
-          }
+      <p>
+        After selecting the season and metric to view, there's an additional option to color and/or filter the points by an additional category
+        such as team, position, height or age. You can toggle to show only a certain group by clicking on the group in the legend.
+      </p>
 
-          .player-name {
-            font-weight: bold;
-            font-size: 18px;
-            text-align: center;
-          }
+      <p>
+        On the plot itself, you can hover over any interesting points which will bring up a player card showing the player headshot, their name and team,
+        and their actual performance in RS vs PO for the metric you've selected.
+      </p>
 
-          .stat-name {
-            font-style: italic;
-            font-size: 14px;
-            text-align: center;
-          }
-
-          .player-stat {
-            font-size: 14px;
-            text-align: left;
-            font-style: normal;
-          }
-
-          .player-image {
-            width: 90%;
-            display: block;
-            margin: 0 auto;
-          }
-
-          .team-logo {
-            margin: 0 auto;
-            display: block;
-            width: 20%;
-          }
-
-        #scatterPlot {
-            width: 800px;
-            height: 600px;
-            /* border: 0px solid #ccc; */
-            margin-right: 50px;
-            margin-left: 25px;
-            position: relative;
-        }
-
-        #legend-container {
-            /* display: flex;
-            flex-wrap: wrap; */
-            margin-left: 50px;
-            margin-right: 50px;
-            margin-top: 50px;
-            max-height: 500px;
-            width: 400px;
-            overflow-y: auto;
-        }
-
-        .plot-column {
-          flex: 1;
-          padding: 10px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            margin-right: 20px;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            cursor: pointer;
-        }
-
-        #category {
-            width: 200px;
-            margin-left: auto;
-            display: none;
-        }
-    </style>
-</head>
-<body>
-
-  <div>
-
-    <p>
-      This visualisation higlights the differences in player performance across regular season and playoffs. To analyse this, we use a
-      simple scatter plot showing the regular season performance for a given metric on the x-axis, and the playoff performance for that metric on
-      the y-axis. The metrics we use here are a collection of FiveThirtyEight's advanced stats including RAPTOR, PREDATOR and WAR. You can read
-      more about these metrics <a href="https://fivethirtyeight.com/features/introducing-raptor-our-new-metric-for-the-modern-nba/">here</a>.
-    </p>
-
-    <p>
-      For any given season, we show each player that played at least 50 minutes in the playoffs, since these stats can be very noisy with a low
-      sample size. Players towards the right perform better in the regular season, whilst those towards the top perform better in playoffs.
-    </p>
-
-    <p>
-      After selecting the season and metric to view, there's an additional option to color and/or filter the points by an additional category
-      such as team, position, height or age. You can toggle to show only a certain group by clicking on the group in the legend.
-    </p>
-
-    <p>
-      On the plot itself, you can hover over any interesting points which will bring up a player card showing the player headshot, their name and team,
-      and their actual performance in RS vs PO for the metric you've selected.
-    </p>
-
-  </div>
-
-
-  <div id=rs-v-po-container>
-
-    <h5>Select a metric and season</h5>
-
-    <div id="perfcontainer">
-      <select id="perf-metric-select" style="width: 400px; float: left"></select>
-      <select id="perf-year-select" style="width: 200px; float: left;  margin-left: 50px"></select>
-      <select id="category" style="width: 250px";></select>
     </div>
-    <br>
+    <div id="rs-v-po-container">
+      <div id="perfcontainer">
+        <select
+          id="perf-metric-select"
+          style="width: 300px; float: left"
+        ></select>
+        <select
+          id="perf-year-select"
+          style="width: 200px; float: left; margin-left: 50px"
+        ></select>
+        <select id="category"></select>
+      </div>
+      <br />
 
-    <div id="fullPlot">
-      <div class="plot-column" id="player-container" style="width: 35%"></div>
-      <div class="plot-column" id="scatterPlot" style="width: 55%"></div>
-      <div class="plot-column" id="legend-container" style="width: 10%"></div>
+      <div id="fullPlot">
+        <div class="plot-column" id="player-container" style="width: 35%"></div>
+        <div class="plot-column" id="scatterPlot" style="width: 55%"></div>
+        <div class="plot-column" id="legend-container" style="width: 10%"></div>
+      </div>
     </div>
-
-  </div>
-
-</body>
+  </body>
 </html>

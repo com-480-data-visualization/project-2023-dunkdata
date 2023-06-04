@@ -2,89 +2,19 @@
 <html>
   <head>
     <title>Player History</title>
-    <style>
-      /* CSS styles for the player cards*/
-      .selections-container {
-        width: 100%;
-        display: flex;
-        align-items: flex-start;
-      }
-
-      #map-season-select {
-        width: 30%;
-        float: left;
-      }
-
-      #map-team-select {
-        width: 30%;
-        float: left;
-        margin-left: 5%;
-      }
-
-      #map-player-select {
-        width: 30%;
-        float: right;
-        margin-left: 5%;
-      }
-
-      #map-viz {
-        width: 100%;
-        display: flex;
-      }
-
-      #player-container {
-        display: flex;
-        flex-wrap: wrap;
-      }
-
-      .player-card {
-        border: 1px solid lightgrey;
-        background-color: #f9f9f9;
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin: auto;
-        line-height: 2;
-      }
-
-      .player-name {
-        font-weight: bold;
-        font-size: 18px;
-        text-align: center;
-      }
-
-      .last-affiliation {
-        font-style: italic;
-        font-size: 14px;
-        text-align: center;
-      }
-
-      .player-image {
-        width: 90%;
-        display: block;
-        margin: 0 auto;
-      }
-
-      .viz-column {
-        flex: 1;
-        padding: 5%;
-      }
-    </style>
   </head>
   <body>
     <p>Player's career history.</p>
-    <div id="journey-map-container" class="map">
-      <div class="selections-container">
+    <div id="journey-map-container">
+      <div class="journey-selections-container">
         <select id="map-season-select"></select>
         <select id="map-team-select"></select>
         <select id="map-player-select"></select>
       </div>
 
-      <div id="map-viz">
-        <svg id="journey-map" viewBox="0 0 960 500" width="80%"></svg>
-        <div class="viz-column" id="player-container" style="width: 15%"></div>
+      <div id="map-viz" class="map">
+        <svg id="journey-map" viewBox="0 0 960 600"></svg>
+        <div class="viz-column" id="player-container"></div>
       </div>
     </div>
   </body>

@@ -2,7 +2,7 @@
 
 | Student's name | SCIPER |
 | -------------- | ------ |
-| Son Le | 352463 |
+| Tran Minh Son Le | 352463 |
 | Amey Kulkarni | 353055 |
 | Somesh Mehra | 353628 |
 
@@ -12,13 +12,13 @@
 
 **10% of the final grade**
 
-[Milestone 1 submission](milestone1.md)
+[Milestone 1 submission](./milestone-reports/milestone1/milestone1.md)
 
 ## Milestone 2 (7th May, 5pm)
 
 **10% of the final grade**
 
-[Milestone 2 submission](milestone2.md)
+[Milestone 2 submission](./milestone-reports/milestone2.md)
 
 [Link to website](https://com-480-data-visualization.github.io/project-2023-dunkdata/)
 
