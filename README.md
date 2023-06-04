@@ -30,7 +30,7 @@
 
 [Process book]
 
-[Screencast]
+[Screencast](screencast.mp4)
 
 Technical setup: Our website is hosted on GitHub pages. The website is built using static HTML, CSS and JavaScript. We have used D3.js for the visualizations. Here is the code structure of our project:
 
