@@ -143,7 +143,12 @@ class NBAMap {
 
     seasonSelect.on(
       "change",
-      self.createSeasonSelectHandlerDD(self, journeyData, teamSelect)
+      self.createSeasonSelectHandlerDD(
+        self,
+        journeyData,
+        teamSelect,
+        projection
+      )
     );
     const seasons = ["--Season--", ...self.generateSeasons(2002, 2023)];
     self.populateDropdown(seasonSelect, seasons);
@@ -169,16 +174,13 @@ class NBAMap {
     self.populateDropdown(playerSelect, ["--Player--"]);
   }
 
-  createSeasonSelectHandlerDD(self, journeyData, teamSelect) {
+  createSeasonSelectHandlerDD(self, journeyData, teamSelect, projection) {
     return function () {
       const selectedSeason = d3.select(this).property("value");
       const selectedSeasonNum = self.getSelectedSeasonNum(selectedSeason);
       if (selectedSeasonNum === -1) {
         d3.selectAll(".journey-path").remove();
-        d3.select("#selected-team").remove();
-        d3.select("#selected-team-label").remove();
-        d3.select("#selected-player").remove();
-        d3.select("#selected-player-label").remove();
+        self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
         return null;
       }
       const selectedSeasonData = self.filterJourneyDataBySeason(
@@ -228,10 +230,6 @@ class NBAMap {
       const selectedTeam = d3.select(this).property("value");
       if (selectedTeam === "--Team--") {
         self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
-        // d3.select("#selected-team")
-        //   .attr("width", DEFAULTIMAGESIZE)
-        //   .attr("height", DEFAULTIMAGESIZE)
-        //   .attr("id", (d) => d.id);
         d3.select("#selected-team").remove();
         return null;
       }
@@ -551,6 +549,7 @@ class NBAMap {
       const uniquePlayerTeams = playerTeams.filter(
         (team, i) => i === 0 || team !== playerTeams[i - 1]
       );
+      // the returned list of teams should end with the selected team
       const finalTeamIndex = uniquePlayerTeams.lastIndexOf(selectedTeam);
       if (finalTeamIndex !== -1) {
         return uniquePlayerTeams.slice(0, finalTeamIndex + 1);
