@@ -180,9 +180,12 @@ class NBAMap {
 
   createSeasonSelectHandlerDD(self, journeyData, teamSelect, projection) {
     return function () {
+      teamSelect.property("value", "--Team--");
+      teamSelect.dispatch("change");
       const selectedSeason = d3.select(this).property("value");
       const selectedSeasonNum = self.getSelectedSeasonNum(selectedSeason);
       if (selectedSeasonNum === -1) {
+        self.populateDropdown(teamSelect, ["--Team--"]);
         d3.selectAll(".journey-path").remove();
         self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
         d3.select("#player-container").html("");
@@ -197,17 +200,7 @@ class NBAMap {
         "--Team--",
         ...self.sortTeamNames(teamNamesInSeason),
       ];
-
       self.populateDropdown(teamSelect, sortedTeamNames);
-
-      const selectedTeam = teamSelect.property("value");
-      teamSelect.property(
-        "value",
-        sortedTeamNames.includes(selectedTeam)
-          ? selectedTeam
-          : sortedTeamNames[0]
-      );
-      teamSelect.dispatch("change");
     };
   }
 
@@ -234,6 +227,7 @@ class NBAMap {
       );
       const selectedTeam = d3.select(this).property("value");
       if (selectedTeam === "--Team--") {
+        self.populateDropdown(playerSelect, ["--Player--"]);
         self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
         d3.select("#player-container").html("");
         return null;
@@ -316,6 +310,13 @@ class NBAMap {
   createPlayerSelectHandlerDD(self, svg, projection) {
     return function () {
       const selectedPlayer = d3.select(this).property("value");
+      if (selectedPlayer === "--Player--") {
+        d3.selectAll(".journey-path").remove();
+        d3.select("#map-team-select").dispatch("change");
+        self.resetDefaultTeamLogo(d3.select("#selected-team"), projection);
+        d3.select("#player-container").html("");
+        return null;
+      }
       const journeyPaths = svg.selectAll(".journey-path");
 
       self.handlePlayerSelect(self, journeyPaths, selectedPlayer, projection);
