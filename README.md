@@ -2,7 +2,7 @@
 
 | Student's name | SCIPER |
 | -------------- | ------ |
-| Son Le | 352463 |
+| Tran Minh Son Le | 352463 |
 | Amey Kulkarni | 353055 |
 | Somesh Mehra | 353628 |
 
