@@ -26,6 +26,19 @@
 
 **80% of the final grade**
 
+[Link to website](https://com-480-data-visualization.github.io/project-2023-dunkdata/)
+
+[Process book]
+
+[Screencast]
+
+Technical setup: Our website is hosted on GitHub pages. The website is built using static HTML, CSS and JavaScript. We have used D3.js for the visualizations. Here is the code structure of our project:
+
+* `milestone-reports`: The milestone reports, as well as the process book, can be found in this folder.
+
+* `docs`: This folder contains the implementation of our website. The entry point of the website is `index.html`, which loads `start.html`, `plot1.html`, `plot2.html`, and `plot3.html` depending on the user's choice. Within `docs`, there are 3 sub-directories: `logos` (containing NBA team logos), `datasets` (containing the datasets used for the visualizations), and `assets`, which contains -- among other things -- the CSS (`css`) and JavaScript (`js`) files used for the website. The `js` folder also contains the D3.js code for the visualizations.
+
+* One can access our website via the link provided above, or by cloning this repository, navigating to the `docs` folder, launching a local server (e.g. via `python -m http.server`), and opening `index.html` in a browser.
 
 ## Late policy
 
