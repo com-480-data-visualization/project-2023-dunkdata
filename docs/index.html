@@ -54,9 +54,9 @@
     <script src="https://d3js.org/d3-color.v0.5.min.js"></script>
     <script src="https://d3js.org/d3-hsv.v0.0.min.js"></script>
 
-    <script type="text/javascript" src="./map.js"></script>
-    <script type="text/javascript" src="./plot2.js"></script>
-    <script type="text/javascript" src="./plot3.js"></script>
+    <script type="text/javascript" src="./assets/js/plot1.js"></script>
+    <script type="text/javascript" src="./assets/js/plot2.js"></script>
+    <script type="text/javascript" src="./assets/js/plot3.js"></script>
   </head>
   <body class="is-preload">
     <!-- Wrapper -->
@@ -95,7 +95,7 @@
           <li>
             <a
               href="javascript:void(0);"
-              onclick="loadPage('map.html', this, initMap)"
+              onclick="loadPage('plot1.html', this, initMap)"
               >Player Movement</a
             >
           </li>
@@ -161,7 +161,6 @@
         xhttp.send();
       }
       document.addEventListener("DOMContentLoaded", function () {
-        // loadPage("map.html", undefined, initMap);
         loadPage("start.html", undefined, function () {});
       });
     </script>
