@@ -519,8 +519,8 @@ class PlayerPerf {
           acc[key].po_stat += entry.stat; // storing the playoff stat
           acc[key].diff_stat += entry.stat;
           acc[key].team = entry.team; // just to ensure the final team selected for a player is the PO team
-        } else acc[key].rs_stat -= entry.stat; // storing the rs_stat
-        acc[key].diff_stat -= entry.stat;
+        } else acc[key].rs_stat += entry.stat; // storing the rs_stat
+        acc[key].diff_stat += entry.stat;
 
         return acc;
       }, {});
